@@ -19,7 +19,7 @@
             </TabItem>
             <TabItem Header="Users">
                 <Grid Background="White">
-                    <TextBlock Text="Users management placeholder" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    <TextBlock Text="User management placeholder" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Vendors">
