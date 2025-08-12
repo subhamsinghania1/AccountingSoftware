@@ -56,10 +56,13 @@ namespace AccountingApp
         }
 
         /// <summary>
-        /// Authenticate the user by calling the server API.
-        /// Replace the stub with real HTTP call.
-        /// Returns true for demo if username == "admin" and password == "password".
+        /// Authenticates a user by posting the provided credentials to the server's login API.
+        /// Returns <c>true</c> if the API responds with success; otherwise <c>false</c>, including when
+        /// the credentials are invalid or a network error occurs.
         /// </summary>
+        /// <param name="username">The user name.</param>
+        /// <param name="password">The user's password.</param>
+        /// <returns>A task resolving to <c>true</c> if authentication succeeds; otherwise <c>false</c>.</returns>
         private async Task<bool> AuthenticateAsync(string username, string password)
         {
             var apiUrl = "http://localhost:5000/api/auth/login";
