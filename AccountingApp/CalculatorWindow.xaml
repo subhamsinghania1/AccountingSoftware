@@ -1,0 +1,60 @@
+﻿<Window x:Class="AccountingApp.CalculatorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Calculator" Height="500" Width="320" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <Style x:Key="CalcButtonStyle" TargetType="Button">
+            <Setter Property="FontSize" Value="22" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Background" Value="#333333" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Margin" Value="3" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+        </Style>
+    </Window.Resources>
+    <Grid Background="#1E1E1E" Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <TextBox x:Name="DisplayTextBox"
+                 Grid.Row="0"
+                 Height="80"
+                 FontSize="36"
+                 Background="#1E1E1E"
+                 Foreground="White"
+                 HorizontalContentAlignment="Right"
+                 VerticalContentAlignment="Center"
+                 BorderBrush="Transparent"
+                 IsReadOnly="True"/>
+        <UniformGrid Grid.Row="1" Rows="5" Columns="4" Margin="0,20,0,0">
+            <!-- Row 1 -->
+            <Button Content="C" Click="ClearButton_Click" Style="{StaticResource CalcButtonStyle}" Background="#666666"/>
+            <Button Content="±" Click="SignButton_Click" Style="{StaticResource CalcButtonStyle}" Background="#666666"/>
+            <Button Content="%" Click="PercentButton_Click" Style="{StaticResource CalcButtonStyle}" Background="#666666"/>
+            <Button Content="÷" Click="OperatorButton_Click" Style="{StaticResource CalcButtonStyle}" Background="#FF9500"/>
+            <!-- Row 2 -->
+            <Button Content="7" Click="NumberButton_Click" Style="{StaticResource CalcButtonStyle}"/>
+            <Button Content="8" Click="NumberButton_Click" Style="{StaticResource CalcButtonStyle}"/>
+            <Button Content="9" Click="NumberButton_Click" Style="{StaticResource CalcButtonStyle}"/>
+            <Button Content="×" Click="OperatorButton_Click" Style="{StaticResource CalcButtonStyle}" Background="#FF9500"/>
+            <!-- Row 3 -->
+            <Button Content="4" Click="NumberButton_Click" Style="{StaticResource CalcButtonStyle}"/>
+            <Button Content="5" Click="NumberButton_Click" Style="{StaticResource CalcButtonStyle}"/>
+            <Button Content="6" Click="NumberButton_Click" Style="{StaticResource CalcButtonStyle}"/>
+            <Button Content="−" Click="OperatorButton_Click" Style="{StaticResource CalcButtonStyle}" Background="#FF9500"/>
+            <!-- Row 4 -->
+            <Button Content="1" Click="NumberButton_Click" Style="{StaticResource CalcButtonStyle}"/>
+            <Button Content="2" Click="NumberButton_Click" Style="{StaticResource CalcButtonStyle}"/>
+            <Button Content="3" Click="NumberButton_Click" Style="{StaticResource CalcButtonStyle}"/>
+            <Button Content="+" Click="OperatorButton_Click" Style="{StaticResource CalcButtonStyle}" Background="#FF9500"/>
+            <!-- Row 5 -->
+            <Button Content="0" Click="NumberButton_Click" Style="{StaticResource CalcButtonStyle}"/>
+            <Button Content="." Click="DecimalButton_Click" Style="{StaticResource CalcButtonStyle}"/>
+            <Button Content="=" Click="EqualButton_Click" Style="{StaticResource CalcButtonStyle}" Background="#FF9500"/>
+            <Button Content="AC" Click="AllClearButton_Click" Style="{StaticResource CalcButtonStyle}" Background="#666666"/>
+        </UniformGrid>
+    </Grid>
+</Window>
