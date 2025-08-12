@@ -118,6 +118,7 @@ namespace AccountingApp
                     // Update vendor combo boxes for filtering and adding transactions
                     TransactionVendorFilterComboBox.ItemsSource = Vendors;
                     AddTransactionVendorComboBox.ItemsSource = Vendors;
+                    UpdateDashboardSummary();
                 }
             }
             catch (Exception ex)
@@ -156,6 +157,7 @@ namespace AccountingApp
                     // Display all transactions by default
                     TransactionsDataGrid.ItemsSource = new ObservableCollection<TransactionViewModel>(AllTransactions);
                     CalculateTotals(AllTransactions);
+                    UpdateDashboardSummary();
                 }
             }
             catch (Exception ex)
@@ -253,6 +255,36 @@ namespace AccountingApp
             TotalCreditTextBlock.Text = totalCredit.ToString("0.00");
             TotalDebitTextBlock.Text = totalDebit.ToString("0.00");
             BalanceTextBlock.Text = balance.ToString("0.00");
+        }
+
+        // Update summary values shown on the Home tab
+        private void UpdateDashboardSummary()
+        {
+            if (VendorCountTextBlock != null)
+            {
+                VendorCountTextBlock.Text = Vendors.Count.ToString();
+            }
+            if (TransactionCountTextBlock != null)
+            {
+                TransactionCountTextBlock.Text = AllTransactions.Count.ToString();
+            }
+
+            decimal totalCredit = AllTransactions.Where(t => string.Equals(t.Type, "Credit", StringComparison.OrdinalIgnoreCase)).Sum(t => t.Amount);
+            decimal totalDebit = AllTransactions.Where(t => string.Equals(t.Type, "Debit", StringComparison.OrdinalIgnoreCase)).Sum(t => t.Amount);
+            decimal balance = totalCredit - totalDebit;
+
+            if (SummaryCreditTextBlock != null)
+            {
+                SummaryCreditTextBlock.Text = totalCredit.ToString("0.00");
+            }
+            if (SummaryDebitTextBlock != null)
+            {
+                SummaryDebitTextBlock.Text = totalDebit.ToString("0.00");
+            }
+            if (SummaryBalanceTextBlock != null)
+            {
+                SummaryBalanceTextBlock.Text = balance.ToString("0.00");
+            }
         }
 
         // Vendor model
