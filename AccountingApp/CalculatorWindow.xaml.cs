@@ -70,7 +70,16 @@ namespace AccountingApp
                 }
                 else if (!_waitingForNextValue)
                 {
-                    _previousValue = Compute(_previousValue.Value, _currentOperator, currentValue);
+                    var result = Compute(_previousValue.Value, _currentOperator, currentValue);
+                    if (double.IsNaN(result))
+                    {
+                        // Error already displayed in Compute; reset state
+                        _previousValue = null;
+                        _currentOperator = null;
+                        _waitingForNextValue = true;
+                        return;
+                    }
+                    _previousValue = result;
                     DisplayTextBox.Text = _previousValue.ToString();
                 }
                 _currentOperator = op;
@@ -87,6 +96,14 @@ namespace AccountingApp
                 if (!double.TryParse(DisplayTextBox.Text, out currentValue))
                     return;
                 var result = Compute(_previousValue.Value, _currentOperator, currentValue);
+                if (double.IsNaN(result))
+                {
+                    // Compute already handled UI; reset state
+                    _previousValue = null;
+                    _currentOperator = null;
+                    _waitingForNextValue = true;
+                    return;
+                }
                 DisplayTextBox.Text = result.ToString();
                 _previousValue = result;
                 _waitingForNextValue = true;
@@ -135,7 +152,13 @@ namespace AccountingApp
                 case "+": return left + right;
                 case "−": return left - right;
                 case "×": return left * right;
-                case "÷": return right != 0 ? left / right : 0;
+                case "÷":
+                    if (right == 0)
+                    {
+                        DisplayTextBox.Text = "Cannot divide by zero";
+                        return double.NaN;
+                    }
+                    return left / right;
                 default: return right;
             }
         }
