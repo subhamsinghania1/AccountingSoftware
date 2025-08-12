@@ -131,7 +131,7 @@ namespace AccountingApp
                     }
 
                     // Update vendor combo boxes for filtering and adding transactions
-                    TransactionVendorFilterComboBox.ItemsSource = Vendors;
+                    LedgerVendorFilterComboBox.ItemsSource = Vendors;
                     AddTransactionVendorComboBox.ItemsSource = Vendors;
                     UpdateDashboardSummary();
                 }
@@ -171,7 +171,6 @@ namespace AccountingApp
 
                     // Display all transactions by default
                     TransactionsDataGrid.ItemsSource = new ObservableCollection<TransactionViewModel>(AllTransactions);
-                    CalculateTotals(AllTransactions);
                     UpdateDashboardSummary();
                 }
             }
@@ -229,6 +228,40 @@ namespace AccountingApp
             catch (Exception ex)
             {
                 MessageBox.Show($"Error adding transaction: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // Refresh transactions list
+        private async void RefreshTransactions_Click(object sender, RoutedEventArgs e)
+        {
+            await LoadTransactionsAsync();
+        }
+
+        // Delete a transaction
+        private async void DeleteTransaction_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as Button)?.Tag is int transactionId)
+            {
+                if (MessageBox.Show("Delete this transaction?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        var response = await _httpClient.DeleteAsync($"http://localhost:5000/api/transactions/{transactionId}");
+                        if (response.IsSuccessStatusCode)
+                        {
+                            await LoadTransactionsAsync();
+                        }
+                        else
+                        {
+                            string error = await response.Content.ReadAsStringAsync();
+                            MessageBox.Show($"Failed to delete transaction: {error}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error deleting transaction: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
             }
         }
 
@@ -318,11 +351,11 @@ namespace AccountingApp
         private void LoadLedger_Click(object sender, RoutedEventArgs e)
         {
             int? vendorId = null;
-            if (TransactionVendorFilterComboBox.SelectedValue != null)
+            if (LedgerVendorFilterComboBox.SelectedValue != null)
             {
                 try
                 {
-                    vendorId = Convert.ToInt32(TransactionVendorFilterComboBox.SelectedValue);
+                    vendorId = Convert.ToInt32(LedgerVendorFilterComboBox.SelectedValue);
                 }
                 catch
                 {
@@ -338,12 +371,12 @@ namespace AccountingApp
                 (!to.HasValue || t.Date.Date <= to.Value.Date)
             ).ToList();
 
-            TransactionsDataGrid.ItemsSource = new ObservableCollection<TransactionViewModel>(filtered);
-            CalculateTotals(filtered);
+            LedgerDataGrid.ItemsSource = new ObservableCollection<TransactionViewModel>(filtered);
+            CalculateLedgerTotals(filtered);
         }
 
         // Calculate totals for credit, debit and balance
-        private void CalculateTotals(IEnumerable<TransactionViewModel> transactions)
+        private void CalculateLedgerTotals(IEnumerable<TransactionViewModel> transactions)
         {
             decimal totalCredit = transactions.Where(t => string.Equals(t.Type, "Credit", StringComparison.OrdinalIgnoreCase)).Sum(t => t.Amount);
             decimal totalDebit = transactions.Where(t => string.Equals(t.Type, "Debit", StringComparison.OrdinalIgnoreCase)).Sum(t => t.Amount);
