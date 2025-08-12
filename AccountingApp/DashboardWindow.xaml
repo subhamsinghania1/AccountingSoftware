@@ -17,10 +17,25 @@
                     <TextBlock Text="Welcome to the Accounting Dashboard" FontSize="24" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                 </Grid>
             </TabItem>
-            <TabItem Header="Users">
-                <Grid Background="White">
-                    <TextBlock Text="User management placeholder" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                </Grid>
+            <TabItem Header="Users" x:Name="UsersTab">
+                <DockPanel>
+                    <Button Content="Refresh Users" DockPanel.Dock="Top" Margin="10" Click="RefreshUsers_Click"/>
+                    <DataGrid x:Name="UsersDataGrid" AutoGenerateColumns="False" Margin="10">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                            <DataGridTextColumn Header="Username" Binding="{Binding Username}" Width="150"/>
+                            <DataGridTextColumn Header="Role" Binding="{Binding Role}" Width="100"/>
+                            <DataGridCheckBoxColumn Header="Active" Binding="{Binding IsActive}" Width="80"/>
+                            <DataGridTemplateColumn Header="Actions" Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="Revoke" Tag="{Binding Id}" Click="RevokeUser_Click" IsEnabled="{Binding IsActive}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
             </TabItem>
             <TabItem Header="Vendors">
                 <!-- Vendor management: add new vendors and list existing ones -->
@@ -97,8 +112,8 @@
             <TabItem Header="Settings">
                 <Grid Background="White">
                     <StackPanel Margin="20">
-                        <TextBlock Text="Settings placeholder" FontSize="18"/>
-                        <Button Content="Restrict a user (placeholder)" Width="200" Height="35" Margin="0,20,0,0"/>
+                        <TextBlock Text="Settings" FontSize="18"/>
+                        <Button x:Name="KillButton" Content="Kill Switch" Width="200" Height="35" Margin="0,20,0,0" Click="KillButton_Click"/>
                     </StackPanel>
                 </Grid>
             </TabItem>
