@@ -31,10 +31,10 @@ namespace AccountingApp
             LoginButton.IsEnabled = false;
             try
             {
-                bool authenticated = await AuthenticateAsync(username, password);
-                if (authenticated)
+                var result = await AuthenticateAsync(username, password);
+                if (result.Success)
                 {
-                    var dashboard = new DashboardWindow { Owner = this.Owner };
+                    var dashboard = new DashboardWindow(result.Role == "Admin") { Owner = this.Owner };
                     this.Hide();
                     dashboard.ShowDialog();
                     this.Show();
@@ -56,14 +56,9 @@ namespace AccountingApp
         }
 
         /// <summary>
-        /// Authenticates a user by posting the provided credentials to the server's login API.
-        /// Returns <c>true</c> if the API responds with success; otherwise <c>false</c>, including when
-        /// the credentials are invalid or a network error occurs.
+        /// Authenticate the user by calling the server API and return role information.
         /// </summary>
-        /// <param name="username">The user name.</param>
-        /// <param name="password">The user's password.</param>
-        /// <returns>A task resolving to <c>true</c> if authentication succeeds; otherwise <c>false</c>.</returns>
-        private async Task<bool> AuthenticateAsync(string username, string password)
+        private async Task<LoginResult> AuthenticateAsync(string username, string password)
         {
             var apiUrl = "http://localhost:5000/api/auth/login";
 
@@ -75,28 +70,41 @@ namespace AccountingApp
                     client.DefaultRequestHeaders.Accept.Add(
                         new MediaTypeWithQualityHeaderValue("application/json"));
 
-                    // NOTE: Capitalized property names
                     var payload = new { Username = username, Password = password };
                     string json = JsonConvert.SerializeObject(payload);
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
 
                     HttpResponseMessage response = await client.PostAsync(apiUrl, content);
 
-                    // Optional: read the server's error message for debugging
-                    if (!response.IsSuccessStatusCode)
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var body = await response.Content.ReadAsStringAsync();
+                        var loginResult = JsonConvert.DeserializeObject<LoginResult>(body);
+                        if (loginResult != null)
+                        {
+                            return loginResult;
+                        }
+                    }
+                    else
                     {
                         string errorBody = await response.Content.ReadAsStringAsync();
                         MessageBox.Show($"Server error: {errorBody}", "Login failed");
                     }
-
-                    return response.IsSuccessStatusCode;
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Network error: {ex.Message}", "Login failed");
-                return false;
             }
+
+            return new LoginResult { Success = false };
+        }
+
+        private class LoginResult
+        {
+            public bool Success { get; set; }
+            public string Role { get; set; } = string.Empty;
         }
     }
-    }
+}
+
