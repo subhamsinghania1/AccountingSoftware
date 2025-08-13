@@ -416,21 +416,61 @@ namespace AccountingApp
                 (!vendorId.HasValue || t.VendorId == vendorId.Value) &&
                 (!from.HasValue || t.Date.Date >= from.Value.Date) &&
                 (!to.HasValue || t.Date.Date <= to.Value.Date)
-            ).ToList();
+            ).OrderBy(t => t.Date).ToList();
+
+            string vendorName = "All Vendors";
+            if (vendorId.HasValue)
+            {
+                var v = Vendors.FirstOrDefault(vd => vd.Id == vendorId.Value);
+                if (v != null)
+                {
+                    vendorName = v.Name;
+                }
+            }
+            LedgerVendorTextBlock.Text = $"Ledger for: {vendorName}";
+
+            IEnumerable<TransactionViewModel> priorTransactions;
+            if (vendorId.HasValue)
+            {
+                priorTransactions = AllTransactions.Where(t => t.VendorId == vendorId.Value && (!from.HasValue || t.Date.Date < from.Value.Date));
+            }
+            else
+            {
+                priorTransactions = AllTransactions.Where(t => !from.HasValue || t.Date.Date < from.Value.Date);
+            }
+
+            decimal openingBalance = priorTransactions.Where(t => string.Equals(t.Type, "Credit", StringComparison.OrdinalIgnoreCase)).Sum(t => t.Amount) -
+                                     priorTransactions.Where(t => string.Equals(t.Type, "Debit", StringComparison.OrdinalIgnoreCase)).Sum(t => t.Amount);
+
+            decimal runningBalance = openingBalance;
+            foreach (var t in filtered)
+            {
+                if (string.Equals(t.Type, "Credit", StringComparison.OrdinalIgnoreCase))
+                {
+                    runningBalance += t.Amount;
+                }
+                else
+                {
+                    runningBalance -= t.Amount;
+                }
+                t.Balance = runningBalance;
+            }
 
             LedgerDataGrid.ItemsSource = new ObservableCollection<TransactionViewModel>(filtered);
-            CalculateLedgerTotals(filtered);
+            CalculateLedgerTotals(filtered, openingBalance, runningBalance);
         }
 
         // Calculate totals for credit, debit and balance
-        private void CalculateLedgerTotals(IEnumerable<TransactionViewModel> transactions)
+        private void CalculateLedgerTotals(IEnumerable<TransactionViewModel> transactions, decimal openingBalance, decimal closingBalance)
         {
             decimal totalCredit = transactions.Where(t => string.Equals(t.Type, "Credit", StringComparison.OrdinalIgnoreCase)).Sum(t => t.Amount);
             decimal totalDebit = transactions.Where(t => string.Equals(t.Type, "Debit", StringComparison.OrdinalIgnoreCase)).Sum(t => t.Amount);
             decimal balance = totalCredit - totalDebit;
 
+            OpeningBalanceTextBlock.Text = openingBalance.ToString("0.00");
             TotalCreditTextBlock.Text = totalCredit.ToString("0.00");
             TotalDebitTextBlock.Text = totalDebit.ToString("0.00");
+            ClosingBalanceTextBlock.Text = closingBalance.ToString("0.00");
             BalanceTextBlock.Text = balance.ToString("0.00");
         }
 
@@ -494,6 +534,11 @@ namespace AccountingApp
             public string Type { get; set; } = string.Empty;
             public DateTime Date { get; set; }
             public string Description { get; set; } = string.Empty;
+            public decimal Balance { get; set; }
+            public string AmountDisplay => string.Equals(Type, "Debit", StringComparison.OrdinalIgnoreCase)
+                ? "-" + Amount.ToString("0.00")
+                : Amount.ToString("0.00");
+            public string BalanceDisplay => Balance.ToString("0.00");
         }
         private class User
         {
