@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using Newtonsoft.Json;
 
 namespace AccountingApp
@@ -183,9 +184,11 @@ namespace AccountingApp
         // Add a new transaction
         private async void AddTransaction_Click(object sender, RoutedEventArgs e)
         {
+            AddTransactionErrorTextBlock.Text = string.Empty;
+
             if (AddTransactionVendorComboBox.SelectedValue == null)
             {
-                MessageBox.Show("Please select a vendor", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                AddTransactionErrorTextBlock.Text = "Please select a vendor.";
                 return;
             }
             var vendorId = (int)AddTransactionVendorComboBox.SelectedValue;
@@ -193,13 +196,13 @@ namespace AccountingApp
             var typeItem = AddTransactionTypeComboBox.SelectedItem as ComboBoxItem;
             if (typeItem == null)
             {
-                MessageBox.Show("Please select a transaction type", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                AddTransactionErrorTextBlock.Text = "Please select a transaction type.";
                 return;
             }
             string type = typeItem.Content.ToString() ?? string.Empty;
             if (!decimal.TryParse((AddTransactionAmountTextBox.Text ?? string.Empty).Trim(), out decimal amount))
             {
-                MessageBox.Show("Please enter a valid amount", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                AddTransactionErrorTextBlock.Text = "Please enter a valid amount.";
                 return;
             }
             var description = (AddTransactionDescriptionTextBox.Text ?? string.Empty).Trim();
@@ -237,6 +240,14 @@ namespace AccountingApp
             await LoadTransactionsAsync();
         }
 
+        private void AddTransactionPanel_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                AddTransaction_Click(AddTransactionButton, new RoutedEventArgs());
+            }
+        }
+
         // Delete a transaction
         private async void DeleteTransaction_Click(object sender, RoutedEventArgs e)
         {
@@ -261,6 +272,42 @@ namespace AccountingApp
                     {
                         MessageBox.Show($"Error deleting transaction: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
+                }
+            }
+        }
+
+        // Persist inline edits to transactions
+        private async void TransactionsDataGrid_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
+        {
+            if (e.EditAction != DataGridEditAction.Commit)
+            {
+                return;
+            }
+
+            if (e.Row.Item is TransactionViewModel tvm)
+            {
+                var transObj = new
+                {
+                    VendorId = tvm.VendorId,
+                    Amount = tvm.Amount,
+                    Type = tvm.Type,
+                    Date = tvm.Date,
+                    Description = tvm.Description
+                };
+                string json = JsonConvert.SerializeObject(transObj);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                try
+                {
+                    var response = await _httpClient.PutAsync($"http://localhost:5000/api/transactions/{tvm.Id}", content);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        string error = await response.Content.ReadAsStringAsync();
+                        MessageBox.Show($"Failed to update transaction: {error}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error updating transaction: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
