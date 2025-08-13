@@ -229,12 +229,11 @@
                     </StackPanel>
                     <DataGrid x:Name="RoznamchaDataGrid" AutoGenerateColumns="False" Margin="10" DockPanel.Dock="Top" IsReadOnly="True">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
                             <DataGridTextColumn Header="Vendor" Binding="{Binding VendorName}" Width="150"/>
                             <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat=d}" Width="120"/>
-                            <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="80"/>
-                            <DataGridTextColumn Header="Amount" Binding="{Binding Amount}" Width="100"/>
                             <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="200"/>
+                            <DataGridTextColumn Header="Credit" Binding="{Binding CreditDisplay}" Width="100"/>
+                            <DataGridTextColumn Header="Debit" Binding="{Binding DebitDisplay}" Width="100"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </DockPanel>
