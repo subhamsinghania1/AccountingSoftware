@@ -149,12 +149,24 @@
                         <Setter Property="Height" Value="32"/>
                         <Setter Property="Margin" Value="0,5,0,0"/>
                         <Setter Property="VerticalContentAlignment" Value="Center"/>
+                        <Setter Property="FontSize" Value="14"/>
+                    </Style>
+                    <Style x:Key="LargeCalendarStyle" TargetType="Calendar">
+                        <Setter Property="Width" Value="250"/>
+                        <Setter Property="Height" Value="220"/>
+                        <Setter Property="FontSize" Value="14"/>
                     </Style>
                 </TabItem.Resources>
                 <!-- Transaction management: view, add and delete transactions -->
                 <DockPanel>
                     <Button Content="Refresh" DockPanel.Dock="Top" Margin="10" Click="RefreshTransactions_Click" Style="{StaticResource AccentButtonStyle}"/>
                     <DataGrid x:Name="TransactionsDataGrid" AutoGenerateColumns="False" Margin="10" DockPanel.Dock="Top" CanUserAddRows="False">
+                        <DataGrid.ColumnHeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                <Setter Property="Padding" Value="5,0"/>
+                            </Style>
+                        </DataGrid.ColumnHeaderStyle>
                         <DataGrid.RowStyle>
                             <Style TargetType="DataGridRow">
                                 <Style.Triggers>
@@ -186,7 +198,7 @@
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50" IsReadOnly="True"/>
                             <DataGridTextColumn Header="Vendor" Binding="{Binding VendorName}" Width="150" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat=d}" Width="120" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat=d}" Width="150" IsReadOnly="True"/>
                             <DataGridComboBoxColumn Header="Type" SelectedItemBinding="{Binding Type, UpdateSourceTrigger=PropertyChanged}" Width="80">
                                 <DataGridComboBoxColumn.ItemsSource>
                                     <x:Array Type="{x:Type sys:String}">
@@ -208,7 +220,7 @@
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
                             <DataGridTextColumn Header="Description" Binding="{Binding Description, UpdateSourceTrigger=PropertyChanged}" Width="200"/>
-                            <DataGridTemplateColumn Header="Actions" Width="260" IsReadOnly="True">
+                            <DataGridTemplateColumn Header="Actions" Width="300" IsReadOnly="True">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
@@ -230,7 +242,7 @@
                                 </StackPanel>
                                 <StackPanel Margin="0,0,10,0">
                                     <TextBlock Text="Date"/>
-                                    <DatePicker x:Name="AddTransactionDatePicker" Width="120" ToolTip="Transaction date" Style="{StaticResource InputControlStyle}"/>
+                                    <DatePicker x:Name="AddTransactionDatePicker" Width="150" ToolTip="Transaction date" Style="{StaticResource InputControlStyle}" CalendarStyle="{StaticResource LargeCalendarStyle}"/>
                                 </StackPanel>
                                 <StackPanel Margin="0,0,10,0">
                                     <TextBlock Text="Type"/>
