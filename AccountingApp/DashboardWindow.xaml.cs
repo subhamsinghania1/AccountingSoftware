@@ -48,7 +48,8 @@ namespace AccountingApp
             if (!_isAdmin)
             {
                 UsersTab.Visibility = Visibility.Collapsed;
-                KillButton.Visibility = Visibility.Collapsed;
+                DeleteDataButton.Visibility = Visibility.Collapsed;
+                ShutdownButton.Visibility = Visibility.Collapsed;
             }
 
             // Load data asynchronously after the window is loaded
@@ -412,17 +413,17 @@ namespace AccountingApp
             }
         }
 
-        // Kill switch to delete all server data
-        private async void KillButton_Click(object sender, RoutedEventArgs e)
+        // Delete all server data except vendor details
+        private async void DeleteDataButton_Click(object sender, RoutedEventArgs e)
         {
-            if (MessageBox.Show("This will delete all data. Are you sure?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            if (MessageBox.Show("This will delete all data except vendor details. Are you sure?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
             {
                 try
                 {
-                    var response = await _httpClient.DeleteAsync("http://localhost:5000/api/admin/kill");
+                    var response = await _httpClient.DeleteAsync("http://localhost:5000/api/admin/purge");
                     if (response.IsSuccessStatusCode)
                     {
-                        MessageBox.Show("All data deleted.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                        MessageBox.Show("All non-vendor data deleted.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     else
                     {
@@ -432,7 +433,32 @@ namespace AccountingApp
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Error invoking kill switch: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"Error deleting data: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        // Forcefully shutdown the server
+        private async void ShutdownButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("This will forcefully shut down the server. Are you sure?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    var response = await _httpClient.PostAsync("http://localhost:5000/api/admin/shutdown", null);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        MessageBox.Show("Server shutdown initiated.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        string error = await response.Content.ReadAsStringAsync();
+                        MessageBox.Show($"Failed to shut down server: {error}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error shutting down server: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
