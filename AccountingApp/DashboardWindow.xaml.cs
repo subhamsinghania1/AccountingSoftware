@@ -54,6 +54,10 @@ namespace AccountingApp
             {
                 // Set default date for adding transactions to today
                 AddTransactionDatePicker.SelectedDate = DateTime.Now;
+                if (RoznamchaDatePicker != null)
+                {
+                    RoznamchaDatePicker.SelectedDate = DateTime.Now;
+                }
                 await LoadVendorsAsync();
                 await LoadTransactionsAsync();
                 if (_isAdmin)
@@ -462,6 +466,39 @@ namespace AccountingApp
             {
                 SummaryBalanceTextBlock.Text = balance.ToString("0.00");
             }
+        }
+
+        private void LoadRoznamcha_Click(object sender, RoutedEventArgs e)
+        {
+            if (RoznamchaDatePicker == null)
+            {
+                return;
+            }
+
+            DateTime? selectedDate = RoznamchaDatePicker.SelectedDate;
+            if (!selectedDate.HasValue)
+            {
+                RoznamchaDataGrid.ItemsSource = null;
+                RoznamchaCreditTextBlock.Text = "0.00";
+                RoznamchaDebitTextBlock.Text = "0.00";
+                return;
+            }
+
+            var filtered = AllTransactions
+                .Where(t => t.Date.Date == selectedDate.Value.Date)
+                .ToList();
+
+            RoznamchaDataGrid.ItemsSource = new ObservableCollection<TransactionViewModel>(filtered);
+
+            decimal totalCredit = filtered
+                .Where(t => string.Equals(t.Type, "Credit", StringComparison.OrdinalIgnoreCase))
+                .Sum(t => t.Amount);
+            decimal totalDebit = filtered
+                .Where(t => string.Equals(t.Type, "Debit", StringComparison.OrdinalIgnoreCase))
+                .Sum(t => t.Amount);
+
+            RoznamchaCreditTextBlock.Text = totalCredit.ToString("0.00");
+            RoznamchaDebitTextBlock.Text = totalDebit.ToString("0.00");
         }
 
         // Vendor model

@@ -169,6 +169,31 @@
                     </DataGrid>
                 </DockPanel>
             </TabItem>
+            <TabItem Header="Roznamcha">
+                <DockPanel>
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="10">
+                        <TextBlock Text="Date:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                        <DatePicker x:Name="RoznamchaDatePicker" Width="120"/>
+                        <Button Content="Load" Margin="10,0,0,0" Click="LoadRoznamcha_Click"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="10,0,0,10">
+                        <TextBlock Text="Total Credit:" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="RoznamchaCreditTextBlock" FontWeight="Bold" Margin="5,0,10,0"/>
+                        <TextBlock Text="Total Debit:" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="RoznamchaDebitTextBlock" FontWeight="Bold" Margin="5,0,10,0"/>
+                    </StackPanel>
+                    <DataGrid x:Name="RoznamchaDataGrid" AutoGenerateColumns="False" Margin="10" DockPanel.Dock="Top" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                            <DataGridTextColumn Header="Vendor" Binding="{Binding VendorName}" Width="150"/>
+                            <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat=d}" Width="120"/>
+                            <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="80"/>
+                            <DataGridTextColumn Header="Amount" Binding="{Binding Amount}" Width="100"/>
+                            <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="200"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </TabItem>
             <TabItem Header="Settings">
                 <Grid Background="White">
                     <StackPanel Margin="20">
