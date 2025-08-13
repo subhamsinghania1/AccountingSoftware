@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using Newtonsoft.Json;
 
 namespace AccountingApp
@@ -18,15 +19,18 @@ namespace AccountingApp
     public partial class DashboardWindow : Window
     {
 
-        // Observable collections to hold vendors and transactions
+        // Observable collections to hold vendors, transactions and users
         private ObservableCollection<Vendor> Vendors { get; set; } = new ObservableCollection<Vendor>();
         private ObservableCollection<TransactionViewModel> AllTransactions { get; set; } = new ObservableCollection<TransactionViewModel>();
+        private ObservableCollection<User> Users { get; set; } = new ObservableCollection<User>();
 
         // HTTP client for API calls
         private readonly HttpClient _httpClient;
+        private readonly bool _isAdmin;
 
-        public DashboardWindow()
+        public DashboardWindow(bool isAdmin)
         {
+            _isAdmin = isAdmin;
             InitializeComponent();
 
             // Initialize HttpClient
@@ -34,8 +38,16 @@ namespace AccountingApp
             _httpClient.DefaultRequestHeaders.Accept.Clear();
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            // Bind the vendors and transactions lists to the DataGrids
+            // Bind the vendors, transactions and users lists to the DataGrids
             VendorsDataGrid.ItemsSource = Vendors;
+            UsersDataGrid.ItemsSource = Users;
+
+            // Hide admin-only features for non-admin users
+            if (!_isAdmin)
+            {
+                UsersTab.Visibility = Visibility.Collapsed;
+                KillButton.Visibility = Visibility.Collapsed;
+            }
 
             // Load data asynchronously after the window is loaded
             this.Loaded += async (_, __) =>
@@ -44,6 +56,10 @@ namespace AccountingApp
                 AddTransactionDatePicker.SelectedDate = DateTime.Now;
                 await LoadVendorsAsync();
                 await LoadTransactionsAsync();
+                if (_isAdmin)
+                {
+                    await LoadUsersAsync();
+                }
             };
         }
 
@@ -116,8 +132,9 @@ namespace AccountingApp
                     }
 
                     // Update vendor combo boxes for filtering and adding transactions
-                    TransactionVendorFilterComboBox.ItemsSource = Vendors;
+                    LedgerVendorFilterComboBox.ItemsSource = Vendors;
                     AddTransactionVendorComboBox.ItemsSource = Vendors;
+                    UpdateDashboardSummary();
                 }
             }
             catch (Exception ex)
@@ -155,7 +172,7 @@ namespace AccountingApp
 
                     // Display all transactions by default
                     TransactionsDataGrid.ItemsSource = new ObservableCollection<TransactionViewModel>(AllTransactions);
-                    CalculateTotals(AllTransactions);
+                    UpdateDashboardSummary();
                 }
             }
             catch (Exception ex)
@@ -167,9 +184,11 @@ namespace AccountingApp
         // Add a new transaction
         private async void AddTransaction_Click(object sender, RoutedEventArgs e)
         {
+            AddTransactionErrorTextBlock.Text = string.Empty;
+
             if (AddTransactionVendorComboBox.SelectedValue == null)
             {
-                MessageBox.Show("Please select a vendor", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                AddTransactionErrorTextBlock.Text = "Please select a vendor.";
                 return;
             }
             var vendorId = (int)AddTransactionVendorComboBox.SelectedValue;
@@ -177,13 +196,13 @@ namespace AccountingApp
             var typeItem = AddTransactionTypeComboBox.SelectedItem as ComboBoxItem;
             if (typeItem == null)
             {
-                MessageBox.Show("Please select a transaction type", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                AddTransactionErrorTextBlock.Text = "Please select a transaction type.";
                 return;
             }
             string type = typeItem.Content.ToString() ?? string.Empty;
             if (!decimal.TryParse((AddTransactionAmountTextBox.Text ?? string.Empty).Trim(), out decimal amount))
             {
-                MessageBox.Show("Please enter a valid amount", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                AddTransactionErrorTextBlock.Text = "Please enter a valid amount.";
                 return;
             }
             var description = (AddTransactionDescriptionTextBox.Text ?? string.Empty).Trim();
@@ -215,15 +234,175 @@ namespace AccountingApp
             }
         }
 
+        // Refresh transactions list
+        private async void RefreshTransactions_Click(object sender, RoutedEventArgs e)
+        {
+            await LoadTransactionsAsync();
+        }
+
+        private void AddTransactionPanel_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                AddTransaction_Click(AddTransactionButton, new RoutedEventArgs());
+            }
+        }
+
+        // Delete a transaction
+        private async void DeleteTransaction_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as Button)?.Tag is int transactionId)
+            {
+                if (MessageBox.Show("Delete this transaction?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        var response = await _httpClient.DeleteAsync($"http://localhost:5000/api/transactions/{transactionId}");
+                        if (response.IsSuccessStatusCode)
+                        {
+                            await LoadTransactionsAsync();
+                        }
+                        else
+                        {
+                            string error = await response.Content.ReadAsStringAsync();
+                            MessageBox.Show($"Failed to delete transaction: {error}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error deleting transaction: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+        }
+
+        // Persist inline edits to transactions
+        private async void TransactionsDataGrid_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
+        {
+            if (e.EditAction != DataGridEditAction.Commit)
+            {
+                return;
+            }
+
+            if (e.Row.Item is TransactionViewModel tvm)
+            {
+                var transObj = new
+                {
+                    VendorId = tvm.VendorId,
+                    Amount = tvm.Amount,
+                    Type = tvm.Type,
+                    Date = tvm.Date,
+                    Description = tvm.Description
+                };
+                string json = JsonConvert.SerializeObject(transObj);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                try
+                {
+                    var response = await _httpClient.PutAsync($"http://localhost:5000/api/transactions/{tvm.Id}", content);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        string error = await response.Content.ReadAsStringAsync();
+                        MessageBox.Show($"Failed to update transaction: {error}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error updating transaction: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        // Refresh users list
+        private async void RefreshUsers_Click(object sender, RoutedEventArgs e)
+        {
+            await LoadUsersAsync();
+        }
+
+        // Revoke a user's access
+        private async void RevokeUser_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as Button)?.Tag is int userId)
+            {
+                if (MessageBox.Show("Revoke this user's access?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        var response = await _httpClient.PutAsync($"http://localhost:5000/api/users/{userId}/revoke", null);
+                        if (response.IsSuccessStatusCode)
+                        {
+                            await LoadUsersAsync();
+                        }
+                        else
+                        {
+                            string error = await response.Content.ReadAsStringAsync();
+                            MessageBox.Show($"Failed to revoke user: {error}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error revoking user: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+        }
+
+        // Load users from the API
+        private async Task LoadUsersAsync()
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync("http://localhost:5000/api/users");
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    var list = JsonConvert.DeserializeObject<List<User>>(json) ?? new List<User>();
+                    Users.Clear();
+                    foreach (var u in list)
+                    {
+                        Users.Add(u);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading users: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // Kill switch to delete all server data
+        private async void KillButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("This will delete all data. Are you sure?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    var response = await _httpClient.DeleteAsync("http://localhost:5000/api/admin/kill");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        MessageBox.Show("All data deleted.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        string error = await response.Content.ReadAsStringAsync();
+                        MessageBox.Show($"Failed to delete data: {error}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error invoking kill switch: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
         // Filter ledger by vendor and date range
         private void LoadLedger_Click(object sender, RoutedEventArgs e)
         {
             int? vendorId = null;
-            if (TransactionVendorFilterComboBox.SelectedValue != null)
+            if (LedgerVendorFilterComboBox.SelectedValue != null)
             {
                 try
                 {
-                    vendorId = Convert.ToInt32(TransactionVendorFilterComboBox.SelectedValue);
+                    vendorId = Convert.ToInt32(LedgerVendorFilterComboBox.SelectedValue);
                 }
                 catch
                 {
@@ -239,12 +418,12 @@ namespace AccountingApp
                 (!to.HasValue || t.Date.Date <= to.Value.Date)
             ).ToList();
 
-            TransactionsDataGrid.ItemsSource = new ObservableCollection<TransactionViewModel>(filtered);
-            CalculateTotals(filtered);
+            LedgerDataGrid.ItemsSource = new ObservableCollection<TransactionViewModel>(filtered);
+            CalculateLedgerTotals(filtered);
         }
 
         // Calculate totals for credit, debit and balance
-        private void CalculateTotals(IEnumerable<TransactionViewModel> transactions)
+        private void CalculateLedgerTotals(IEnumerable<TransactionViewModel> transactions)
         {
             decimal totalCredit = transactions.Where(t => string.Equals(t.Type, "Credit", StringComparison.OrdinalIgnoreCase)).Sum(t => t.Amount);
             decimal totalDebit = transactions.Where(t => string.Equals(t.Type, "Debit", StringComparison.OrdinalIgnoreCase)).Sum(t => t.Amount);
@@ -253,6 +432,36 @@ namespace AccountingApp
             TotalCreditTextBlock.Text = totalCredit.ToString("0.00");
             TotalDebitTextBlock.Text = totalDebit.ToString("0.00");
             BalanceTextBlock.Text = balance.ToString("0.00");
+        }
+
+        // Update summary values shown on the Home tab
+        private void UpdateDashboardSummary()
+        {
+            if (VendorCountTextBlock != null)
+            {
+                VendorCountTextBlock.Text = Vendors.Count.ToString();
+            }
+            if (TransactionCountTextBlock != null)
+            {
+                TransactionCountTextBlock.Text = AllTransactions.Count.ToString();
+            }
+
+            decimal totalCredit = AllTransactions.Where(t => string.Equals(t.Type, "Credit", StringComparison.OrdinalIgnoreCase)).Sum(t => t.Amount);
+            decimal totalDebit = AllTransactions.Where(t => string.Equals(t.Type, "Debit", StringComparison.OrdinalIgnoreCase)).Sum(t => t.Amount);
+            decimal balance = totalCredit - totalDebit;
+
+            if (SummaryCreditTextBlock != null)
+            {
+                SummaryCreditTextBlock.Text = totalCredit.ToString("0.00");
+            }
+            if (SummaryDebitTextBlock != null)
+            {
+                SummaryDebitTextBlock.Text = totalDebit.ToString("0.00");
+            }
+            if (SummaryBalanceTextBlock != null)
+            {
+                SummaryBalanceTextBlock.Text = balance.ToString("0.00");
+            }
         }
 
         // Vendor model
@@ -285,6 +494,13 @@ namespace AccountingApp
             public string Type { get; set; } = string.Empty;
             public DateTime Date { get; set; }
             public string Description { get; set; } = string.Empty;
+        }
+        private class User
+        {
+            public int Id { get; set; }
+            public string Username { get; set; } = string.Empty;
+            public string Role { get; set; } = string.Empty;
+            public bool IsActive { get; set; }
         }
     }
 }

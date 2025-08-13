@@ -14,13 +14,52 @@
         <TabControl>
             <TabItem Header="Home">
                 <Grid Background="White">
-                    <TextBlock Text="Welcome to the Accounting Dashboard" FontSize="24" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock Text="Welcome to the Accounting Dashboard" FontSize="24" HorizontalAlignment="Center"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
+                            <StackPanel Margin="10" HorizontalAlignment="Center">
+                                <TextBlock Text="Total Vendors" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="VendorCountTextBlock" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Margin="10" HorizontalAlignment="Center">
+                                <TextBlock Text="Total Transactions" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="TransactionCountTextBlock" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Margin="10" HorizontalAlignment="Center">
+                                <TextBlock Text="Total Credit" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="SummaryCreditTextBlock" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Margin="10" HorizontalAlignment="Center">
+                                <TextBlock Text="Total Debit" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="SummaryDebitTextBlock" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Margin="10" HorizontalAlignment="Center">
+                                <TextBlock Text="Balance" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="SummaryBalanceTextBlock" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
                 </Grid>
             </TabItem>
-            <TabItem Header="Users">
-                <Grid Background="White">
-                    <TextBlock Text="Users management placeholder" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                </Grid>
+            <TabItem Header="Users" x:Name="UsersTab">
+                <DockPanel>
+                    <Button Content="Refresh Users" DockPanel.Dock="Top" Margin="10" Click="RefreshUsers_Click"/>
+                    <DataGrid x:Name="UsersDataGrid" AutoGenerateColumns="False" Margin="10">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                            <DataGridTextColumn Header="Username" Binding="{Binding Username}" Width="150"/>
+                            <DataGridTextColumn Header="Role" Binding="{Binding Role}" Width="100"/>
+                            <DataGridCheckBoxColumn Header="Active" Binding="{Binding IsActive}" Width="80"/>
+                            <DataGridTemplateColumn Header="Actions" Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="Revoke" Tag="{Binding Id}" Click="RevokeUser_Click" IsEnabled="{Binding IsActive}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
             </TabItem>
             <TabItem Header="Vendors">
                 <!-- Vendor management: add new vendors and list existing ones -->
@@ -45,21 +84,70 @@
                 </DockPanel>
             </TabItem>
             <TabItem Header="Transactions">
-                <!-- Transaction management: filter ledger, add transactions, and display ledger -->
+                <!-- Transaction management: view, add and delete transactions -->
                 <DockPanel>
-                    <!-- Top area: filtering and ledger summary -->
+                    <Button Content="Refresh" DockPanel.Dock="Top" Margin="10" Click="RefreshTransactions_Click"/>
+                    <DataGrid x:Name="TransactionsDataGrid" AutoGenerateColumns="False" Margin="10" DockPanel.Dock="Top" CanUserAddRows="False" RowEditEnding="TransactionsDataGrid_RowEditEnding">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Vendor" Binding="{Binding VendorName}" Width="150" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat=d}" Width="120" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="80" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Amount" Binding="{Binding Amount}" Width="100" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Description" Binding="{Binding Description, UpdateSourceTrigger=PropertyChanged}" Width="200"/>
+                            <DataGridTemplateColumn Header="Actions" Width="100" IsReadOnly="True">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="Delete" Tag="{Binding Id}" Click="DeleteTransaction_Click"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <StackPanel x:Name="AddTransactionPanel" Orientation="Vertical" DockPanel.Dock="Bottom" Margin="10" KeyDown="AddTransactionPanel_KeyDown">
+                        <StackPanel Orientation="Horizontal">
+                            <StackPanel Margin="0,0,10,0">
+                                <TextBlock Text="Vendor"/>
+                                <ComboBox x:Name="AddTransactionVendorComboBox" Width="150" DisplayMemberPath="Name" SelectedValuePath="Id" ToolTip="Select vendor"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,10,0">
+                                <TextBlock Text="Date"/>
+                                <DatePicker x:Name="AddTransactionDatePicker" Width="120" ToolTip="Transaction date"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,10,0">
+                                <TextBlock Text="Type"/>
+                                <ComboBox x:Name="AddTransactionTypeComboBox" Width="100" ToolTip="Credit or debit">
+                                    <ComboBoxItem Content="Credit"/>
+                                    <ComboBoxItem Content="Debit"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,10,0">
+                                <TextBlock Text="Amount"/>
+                                <TextBox x:Name="AddTransactionAmountTextBox" Width="80" ToolTip="Amount"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,10,0">
+                                <TextBlock Text="Description"/>
+                                <TextBox x:Name="AddTransactionDescriptionTextBox" Width="150" ToolTip="Optional description"/>
+                            </StackPanel>
+                            <Button x:Name="AddTransactionButton" Content="Add Transaction" Margin="10,20,0,0" Click="AddTransaction_Click"/>
+                        </StackPanel>
+                        <TextBlock x:Name="AddTransactionErrorTextBlock" Foreground="Red" Margin="0,5,0,0"/>
+                    </StackPanel>
+                </DockPanel>
+            </TabItem>
+            <TabItem Header="Ledger">
+                <!-- Separate ledger view with vendor and date range filtering -->
+                <DockPanel>
                     <StackPanel Orientation="Vertical" DockPanel.Dock="Top" Margin="10">
-                        <!-- Filter controls -->
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                             <TextBlock Text="Vendor:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                            <ComboBox x:Name="TransactionVendorFilterComboBox" Width="150" DisplayMemberPath="Name" SelectedValuePath="Id"/>
+                            <ComboBox x:Name="LedgerVendorFilterComboBox" Width="150" DisplayMemberPath="Name" SelectedValuePath="Id"/>
                             <TextBlock Text="From:" VerticalAlignment="Center" Margin="10,0,5,0"/>
                             <DatePicker x:Name="FromDatePicker" Width="120"/>
                             <TextBlock Text="To:" VerticalAlignment="Center" Margin="10,0,5,0"/>
                             <DatePicker x:Name="ToDatePicker" Width="120"/>
                             <Button Content="Load Ledger" Click="LoadLedger_Click" Margin="10,0,0,0"/>
                         </StackPanel>
-                        <!-- Ledger summary labels -->
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                             <TextBlock Text="Total Credit:" VerticalAlignment="Center"/>
                             <TextBlock x:Name="TotalCreditTextBlock" FontWeight="Bold" Margin="5,0,10,0"/>
@@ -69,8 +157,7 @@
                             <TextBlock x:Name="BalanceTextBlock" FontWeight="Bold" Margin="5,0,10,0"/>
                         </StackPanel>
                     </StackPanel>
-                    <!-- Ledger data grid -->
-                    <DataGrid x:Name="TransactionsDataGrid" AutoGenerateColumns="False" Margin="10" DockPanel.Dock="Top" IsReadOnly="True">
+                    <DataGrid x:Name="LedgerDataGrid" AutoGenerateColumns="False" Margin="10" DockPanel.Dock="Top" IsReadOnly="True">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
                             <DataGridTextColumn Header="Vendor" Binding="{Binding VendorName}" Width="150"/>
@@ -80,25 +167,13 @@
                             <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="200"/>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <!-- Add transaction form -->
-                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" Margin="10">
-                        <ComboBox x:Name="AddTransactionVendorComboBox" Width="150" DisplayMemberPath="Name" SelectedValuePath="Id" Margin="0,0,10,0"/>
-                        <DatePicker x:Name="AddTransactionDatePicker" Width="120" Margin="0,0,10,0"/>
-                        <ComboBox x:Name="AddTransactionTypeComboBox" Width="100" Margin="0,0,10,0">
-                            <ComboBoxItem Content="Credit"/>
-                            <ComboBoxItem Content="Debit"/>
-                        </ComboBox>
-                        <TextBox x:Name="AddTransactionAmountTextBox" Width="80" Margin="0,0,10,0"/>
-                        <TextBox x:Name="AddTransactionDescriptionTextBox" Width="150" Margin="0,0,10,0"/>
-                        <Button Content="Add Transaction" Click="AddTransaction_Click"/>
-                    </StackPanel>
                 </DockPanel>
             </TabItem>
             <TabItem Header="Settings">
                 <Grid Background="White">
                     <StackPanel Margin="20">
-                        <TextBlock Text="Settings placeholder" FontSize="18"/>
-                        <Button Content="Restrict a user (placeholder)" Width="200" Height="35" Margin="0,20,0,0"/>
+                        <TextBlock Text="Settings" FontSize="18"/>
+                        <Button x:Name="KillButton" Content="Kill Switch" Width="200" Height="35" Margin="0,20,0,0" Click="KillButton_Click"/>
                     </StackPanel>
                 </Grid>
             </TabItem>
