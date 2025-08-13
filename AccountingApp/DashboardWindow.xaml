@@ -5,14 +5,15 @@
         Title="Dashboard"
         WindowStartupLocation="CenterOwner"
         WindowState="Maximized"
-        ResizeMode="CanMinimize">
+        ResizeMode="CanMinimize"
+        TextElement.FontFamily="Segoe UI">
     <DockPanel>
         <!-- Top bar with sign out button -->
-        <DockPanel DockPanel.Dock="Top" Background="#007ACC" Height="40">
-            <TextBlock Text="Accounting Dashboard" Foreground="White" FontSize="18" VerticalAlignment="Center" Margin="10,0,0,0" DockPanel.Dock="Left"/>
-            <Button Content="Sign out" Width="80" Margin="0,0,10,0" DockPanel.Dock="Right" Click="SignOutButton_Click"/>
+        <DockPanel DockPanel.Dock="Top" Background="{StaticResource PrimaryBrush}" Height="50" LastChildFill="False">
+            <TextBlock Text="Accounting Dashboard" Foreground="White" FontSize="18" VerticalAlignment="Center" Margin="15,0" DockPanel.Dock="Left"/>
+            <Button Content="Sign out" Margin="0,0,15,0" DockPanel.Dock="Right" Click="SignOutButton_Click" Style="{StaticResource DangerButtonStyle}"/>
         </DockPanel>
-        <TabControl>
+        <TabControl Background="White">
             <TabItem Header="Home">
                 <Grid Background="White">
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -44,7 +45,7 @@
             </TabItem>
             <TabItem Header="Users" x:Name="UsersTab">
                 <DockPanel>
-                    <Button Content="Refresh Users" DockPanel.Dock="Top" Margin="10" Click="RefreshUsers_Click"/>
+                    <Button Content="Refresh Users" DockPanel.Dock="Top" Margin="10" Click="RefreshUsers_Click" Style="{StaticResource AccentButtonStyle}"/>
                     <DataGrid x:Name="UsersDataGrid" AutoGenerateColumns="False" Margin="10">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
@@ -54,7 +55,7 @@
                             <DataGridTemplateColumn Header="Actions" Width="100">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Content="Revoke" Tag="{Binding Id}" Click="RevokeUser_Click" IsEnabled="{Binding IsActive}"/>
+                                        <Button Content="Revoke" Tag="{Binding Id}" Click="RevokeUser_Click" IsEnabled="{Binding IsActive}" Style="{StaticResource DangerButtonStyle}"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
@@ -106,11 +107,11 @@
                 <DockPanel TextElement.FontFamily="Segoe UI" TextElement.FontSize="14">
                     <!-- Top panel: inputs for adding a new vendor and refresh -->
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="10">
-                        <Button Content="Refresh" Click="RefreshVendors_Click" Style="{StaticResource RefreshButtonStyle}"/>
+                        <Button Content="Refresh" Click="RefreshVendors_Click" Style="{StaticResource AccentButtonStyle}"/>
                         <TextBox x:Name="VendorNameTextBox" Width="150"/>
                         <TextBox x:Name="VendorAddressTextBox" Width="150"/>
                         <TextBox x:Name="VendorPhoneTextBox" Width="120"/>
-                        <Button Content="Add Vendor" Click="AddVendor_Click" Style="{StaticResource ActionButtonStyle}"/>
+                        <Button Content="Add Vendor" Click="AddVendor_Click"/>
                     </StackPanel>
                     <!-- Vendor list -->
                     <DataGrid x:Name="VendorsDataGrid" AutoGenerateColumns="False" Margin="10" IsReadOnly="True">
@@ -152,7 +153,7 @@
                 </TabItem.Resources>
                 <!-- Transaction management: view, add and delete transactions -->
                 <DockPanel>
-                    <Button Content="Refresh" DockPanel.Dock="Top" Margin="10" Click="RefreshTransactions_Click" Style="{StaticResource RefreshButtonStyle}"/>
+                    <Button Content="Refresh" DockPanel.Dock="Top" Margin="10" Click="RefreshTransactions_Click" Style="{StaticResource AccentButtonStyle}"/>
                     <DataGrid x:Name="TransactionsDataGrid" AutoGenerateColumns="False" Margin="10" DockPanel.Dock="Top" CanUserAddRows="False">
                         <DataGrid.RowStyle>
                             <Style TargetType="DataGridRow">
@@ -211,9 +212,9 @@
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                            <Button Content="Edit" Margin="0,0,5,0" Click="EditTransaction_Click" Style="{StaticResource ActionButtonStyle}"/>
-                                            <Button Content="Update" Margin="0,0,5,0" Tag="{Binding Id}" Click="UpdateTransaction_Click" Style="{StaticResource ActionButtonStyle}"/>
-                                            <Button Content="Delete" Tag="{Binding Id}" Click="DeleteTransaction_Click" Style="{StaticResource DeleteButtonStyle}"/>
+                                            <Button Content="Edit" Margin="0,0,5,0" Click="EditTransaction_Click"/>
+                                            <Button Content="Update" Margin="0,0,5,0" Tag="{Binding Id}" Click="UpdateTransaction_Click"/>
+                                            <Button Content="Delete" Tag="{Binding Id}" Click="DeleteTransaction_Click" Style="{StaticResource DangerButtonStyle}"/>
                                         </StackPanel>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
@@ -246,7 +247,7 @@
                                     <TextBlock Text="Description"/>
                                     <TextBox x:Name="AddTransactionDescriptionTextBox" Width="150" ToolTip="Optional description" Style="{StaticResource InputControlStyle}"/>
                                 </StackPanel>
-                                <Button x:Name="AddTransactionButton" Content="Add Transaction" Margin="10,20,0,0" Click="AddTransaction_Click" Style="{StaticResource ActionButtonStyle}"/>
+                                <Button x:Name="AddTransactionButton" Content="Add Transaction" Margin="10,20,0,0" Click="AddTransaction_Click"/>
                             </StackPanel>
                             <TextBlock x:Name="AddTransactionErrorTextBlock" Foreground="Red" Margin="0,5,0,0"/>
                         </StackPanel>
@@ -383,8 +384,8 @@
                 <Grid Background="White">
                     <StackPanel Margin="20">
                         <TextBlock Text="Settings" FontSize="18"/>
-                        <Button x:Name="DeleteDataButton" Content="Delete All Data" Width="200" Height="35" Margin="0,20,0,0" Click="DeleteDataButton_Click"/>
-                        <Button x:Name="ShutdownButton" Content="Shutdown Server" Width="200" Height="35" Margin="0,10,0,0" Click="ShutdownButton_Click"/>
+                        <Button x:Name="DeleteDataButton" Content="Delete All Data" Width="200" Height="35" Margin="0,20,0,0" Click="DeleteDataButton_Click" Style="{StaticResource DangerButtonStyle}"/>
+                        <Button x:Name="ShutdownButton" Content="Shutdown Server" Width="200" Height="35" Margin="0,10,0,0" Click="ShutdownButton_Click" Style="{StaticResource DangerButtonStyle}"/>
                     </StackPanel>
                 </Grid>
             </TabItem>
