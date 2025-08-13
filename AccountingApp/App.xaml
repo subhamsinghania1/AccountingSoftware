@@ -44,11 +44,16 @@
             <Setter Property="HeadersVisibility" Value="Column"/>
             <Setter Property="RowHeight" Value="30"/>
         </Style>
+        <Style TargetType="DataGridCell">
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+        </Style>
         <Style TargetType="DataGridColumnHeader">
             <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
         </Style>
         <Style TargetType="TabControl">
             <Setter Property="BorderThickness" Value="0"/>
