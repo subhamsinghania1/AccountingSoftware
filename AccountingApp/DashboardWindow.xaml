@@ -265,6 +265,11 @@
                         <Setter Property="Height" Value="32"/>
                         <Setter Property="Cursor" Value="Hand"/>
                     </Style>
+                    <Style x:Key="InputControlStyle" TargetType="Control">
+                        <Setter Property="Height" Value="32"/>
+                        <Setter Property="Margin" Value="0,0,10,0"/>
+                        <Setter Property="VerticalContentAlignment" Value="Center"/>
+                    </Style>
                     <Style TargetType="DataGrid">
                         <Setter Property="RowBackground" Value="White"/>
                         <Setter Property="AlternatingRowBackground" Value="#F3F3F3"/>
@@ -286,11 +291,11 @@
                     <StackPanel Orientation="Vertical" DockPanel.Dock="Top" Margin="10">
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                             <TextBlock Text="Vendor:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                            <ComboBox x:Name="LedgerVendorFilterComboBox" Width="150" DisplayMemberPath="Name" SelectedValuePath="Id"/>
+                            <ComboBox x:Name="LedgerVendorFilterComboBox" Width="140" DisplayMemberPath="Name" SelectedValuePath="Id" Style="{StaticResource InputControlStyle}"/>
                             <TextBlock Text="From:" VerticalAlignment="Center" Margin="10,0,5,0"/>
-                            <DatePicker x:Name="FromDatePicker" Width="160" SelectedDateFormat="Short"/>
+                            <DatePicker x:Name="FromDatePicker" Width="140" SelectedDateFormat="Short" Style="{StaticResource InputControlStyle}"/>
                             <TextBlock Text="To:" VerticalAlignment="Center" Margin="10,0,5,0"/>
-                            <DatePicker x:Name="ToDatePicker" Width="160" SelectedDateFormat="Short"/>
+                            <DatePicker x:Name="ToDatePicker" Width="140" SelectedDateFormat="Short" Style="{StaticResource InputControlStyle}"/>
                             <Button Content="Load Ledger" Click="LoadLedger_Click" Margin="10,0,0,0"/>
                         </StackPanel>
                         <TextBlock x:Name="LedgerVendorTextBlock" FontWeight="Bold" Margin="0,0,0,10"/>
@@ -309,7 +314,7 @@
                     </StackPanel>
                     <DataGrid x:Name="LedgerDataGrid" AutoGenerateColumns="False" Margin="10" DockPanel.Dock="Top" IsReadOnly="True">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat=d}" Width="120"/>
+                            <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat=d}" Width="140"/>
                             <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="200"/>
                             <DataGridTextColumn Header="Credit" Binding="{Binding CreditDisplay}" Width="100"/>
                             <DataGridTextColumn Header="Debit" Binding="{Binding DebitDisplay}" Width="100"/>
@@ -330,6 +335,11 @@
                         <Setter Property="Height" Value="32"/>
                         <Setter Property="Cursor" Value="Hand"/>
                     </Style>
+                    <Style x:Key="InputControlStyle" TargetType="Control">
+                        <Setter Property="Height" Value="32"/>
+                        <Setter Property="Margin" Value="0,0,10,0"/>
+                        <Setter Property="VerticalContentAlignment" Value="Center"/>
+                    </Style>
                     <Style TargetType="DataGrid">
                         <Setter Property="RowBackground" Value="White"/>
                         <Setter Property="AlternatingRowBackground" Value="#F3F3F3"/>
@@ -349,7 +359,7 @@
                 <DockPanel Margin="10" TextElement.FontFamily="Segoe UI" TextElement.FontSize="14">
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="10">
                         <TextBlock Text="Date:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                        <DatePicker x:Name="RoznamchaDatePicker" Width="160" SelectedDateFormat="Short"/>
+                        <DatePicker x:Name="RoznamchaDatePicker" Width="140" SelectedDateFormat="Short" Style="{StaticResource InputControlStyle}"/>
                         <Button Content="Load" Margin="10,0,0,0" Click="LoadRoznamcha_Click"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="10,0,0,10">
@@ -361,7 +371,7 @@
                     <DataGrid x:Name="RoznamchaDataGrid" AutoGenerateColumns="False" Margin="10" DockPanel.Dock="Top" IsReadOnly="True">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Vendor" Binding="{Binding VendorName}" Width="150"/>
-                            <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat=d}" Width="120"/>
+                            <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat=d}" Width="140"/>
                             <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="200"/>
                             <DataGridTextColumn Header="Credit" Binding="{Binding CreditDisplay}" Width="100"/>
                             <DataGridTextColumn Header="Debit" Binding="{Binding DebitDisplay}" Width="100"/>
