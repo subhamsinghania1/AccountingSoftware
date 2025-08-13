@@ -248,6 +248,62 @@ namespace AccountingApp
             }
         }
 
+        // Enable editing on a transaction row
+        private void EditTransaction_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn)
+            {
+                var row = TransactionsDataGrid.ItemContainerGenerator.ContainerFromItem(btn.DataContext) as DataGridRow;
+                if (row != null)
+                {
+                    TransactionsDataGrid.SelectedItem = row.Item;
+                    TransactionsDataGrid.CurrentCell = new DataGridCellInfo(row.Item, TransactionsDataGrid.Columns[5]);
+                    TransactionsDataGrid.BeginEdit();
+                }
+            }
+        }
+
+        // Refresh a transaction from the server
+        private async void UpdateTransaction_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as Button)?.Tag is int transactionId)
+            {
+                try
+                {
+                    var response = await _httpClient.GetAsync($"http://localhost:5000/api/transactions/{transactionId}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var json = await response.Content.ReadAsStringAsync();
+                        var t = JsonConvert.DeserializeObject<Transaction>(json);
+                        if (t != null)
+                        {
+                            var tvm = AllTransactions.FirstOrDefault(x => x.Id == t.Id);
+                            if (tvm != null)
+                            {
+                                var vendor = Vendors.FirstOrDefault(v => v.Id == t.VendorId);
+                                tvm.VendorId = t.VendorId;
+                                tvm.VendorName = vendor?.Name ?? string.Empty;
+                                tvm.Amount = t.Amount;
+                                tvm.Type = t.Type;
+                                tvm.Date = t.Date;
+                                tvm.Description = t.Description;
+                                TransactionsDataGrid.Items.Refresh();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        string error = await response.Content.ReadAsStringAsync();
+                        MessageBox.Show($"Failed to fetch transaction: {error}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error fetching transaction: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
         // Delete a transaction
         private async void DeleteTransaction_Click(object sender, RoutedEventArgs e)
         {
