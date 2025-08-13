@@ -334,7 +334,8 @@
                 <Grid Background="White">
                     <StackPanel Margin="20">
                         <TextBlock Text="Settings" FontSize="18"/>
-                        <Button x:Name="KillButton" Content="Kill Switch" Width="200" Height="35" Margin="0,20,0,0" Click="KillButton_Click"/>
+                        <Button x:Name="DeleteDataButton" Content="Delete All Data" Width="200" Height="35" Margin="0,20,0,0" Click="DeleteDataButton_Click"/>
+                        <Button x:Name="ShutdownButton" Content="Shutdown Server" Width="200" Height="35" Margin="0,10,0,0" Click="ShutdownButton_Click"/>
                     </StackPanel>
                 </Grid>
             </TabItem>
