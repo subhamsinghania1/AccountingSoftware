@@ -87,15 +87,15 @@
                 <!-- Transaction management: view, add and delete transactions -->
                 <DockPanel>
                     <Button Content="Refresh" DockPanel.Dock="Top" Margin="10" Click="RefreshTransactions_Click"/>
-                    <DataGrid x:Name="TransactionsDataGrid" AutoGenerateColumns="False" Margin="10" DockPanel.Dock="Top" IsReadOnly="True">
+                    <DataGrid x:Name="TransactionsDataGrid" AutoGenerateColumns="False" Margin="10" DockPanel.Dock="Top" CanUserAddRows="False" RowEditEnding="TransactionsDataGrid_RowEditEnding">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
-                            <DataGridTextColumn Header="Vendor" Binding="{Binding VendorName}" Width="150"/>
-                            <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat=d}" Width="120"/>
-                            <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="80"/>
-                            <DataGridTextColumn Header="Amount" Binding="{Binding Amount}" Width="100"/>
-                            <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="200"/>
-                            <DataGridTemplateColumn Header="Actions" Width="100">
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Vendor" Binding="{Binding VendorName}" Width="150" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat=d}" Width="120" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="80" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Amount" Binding="{Binding Amount}" Width="100" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Description" Binding="{Binding Description, UpdateSourceTrigger=PropertyChanged}" Width="200"/>
+                            <DataGridTemplateColumn Header="Actions" Width="100" IsReadOnly="True">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Button Content="Delete" Tag="{Binding Id}" Click="DeleteTransaction_Click"/>
@@ -104,16 +104,34 @@
                             </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" Margin="10">
-                        <ComboBox x:Name="AddTransactionVendorComboBox" Width="150" DisplayMemberPath="Name" SelectedValuePath="Id" Margin="0,0,10,0"/>
-                        <DatePicker x:Name="AddTransactionDatePicker" Width="120" Margin="0,0,10,0"/>
-                        <ComboBox x:Name="AddTransactionTypeComboBox" Width="100" Margin="0,0,10,0">
-                            <ComboBoxItem Content="Credit"/>
-                            <ComboBoxItem Content="Debit"/>
-                        </ComboBox>
-                        <TextBox x:Name="AddTransactionAmountTextBox" Width="80" Margin="0,0,10,0"/>
-                        <TextBox x:Name="AddTransactionDescriptionTextBox" Width="150" Margin="0,0,10,0"/>
-                        <Button Content="Add Transaction" Click="AddTransaction_Click"/>
+                    <StackPanel x:Name="AddTransactionPanel" Orientation="Vertical" DockPanel.Dock="Bottom" Margin="10" KeyDown="AddTransactionPanel_KeyDown">
+                        <StackPanel Orientation="Horizontal">
+                            <StackPanel Margin="0,0,10,0">
+                                <TextBlock Text="Vendor"/>
+                                <ComboBox x:Name="AddTransactionVendorComboBox" Width="150" DisplayMemberPath="Name" SelectedValuePath="Id" ToolTip="Select vendor"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,10,0">
+                                <TextBlock Text="Date"/>
+                                <DatePicker x:Name="AddTransactionDatePicker" Width="120" ToolTip="Transaction date"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,10,0">
+                                <TextBlock Text="Type"/>
+                                <ComboBox x:Name="AddTransactionTypeComboBox" Width="100" ToolTip="Credit or debit">
+                                    <ComboBoxItem Content="Credit"/>
+                                    <ComboBoxItem Content="Debit"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,10,0">
+                                <TextBlock Text="Amount"/>
+                                <TextBox x:Name="AddTransactionAmountTextBox" Width="80" ToolTip="Amount"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,10,0">
+                                <TextBlock Text="Description"/>
+                                <TextBox x:Name="AddTransactionDescriptionTextBox" Width="150" ToolTip="Optional description"/>
+                            </StackPanel>
+                            <Button x:Name="AddTransactionButton" Content="Add Transaction" Margin="10,20,0,0" Click="AddTransaction_Click"/>
+                        </StackPanel>
+                        <TextBlock x:Name="AddTransactionErrorTextBlock" Foreground="Red" Margin="0,5,0,0"/>
                     </StackPanel>
                 </DockPanel>
             </TabItem>
