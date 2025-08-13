@@ -153,14 +153,13 @@
                     </Style>
                     <Style x:Key="LargeCalendarStyle" TargetType="Calendar">
                         <Setter Property="Width" Value="250"/>
-                        <Setter Property="Height" Value="220"/>
                         <Setter Property="FontSize" Value="14"/>
                     </Style>
                 </TabItem.Resources>
                 <!-- Transaction management: view, add and delete transactions -->
                 <DockPanel>
                     <Button Content="Refresh" DockPanel.Dock="Top" Margin="10" Click="RefreshTransactions_Click" Style="{StaticResource AccentButtonStyle}"/>
-                    <DataGrid x:Name="TransactionsDataGrid" AutoGenerateColumns="False" Margin="10" DockPanel.Dock="Top" CanUserAddRows="False">
+                    <DataGrid x:Name="TransactionsDataGrid" AutoGenerateColumns="False" Margin="10" DockPanel.Dock="Top" CanUserAddRows="False" RowHeight="35">
                         <DataGrid.ColumnHeaderStyle>
                             <Style TargetType="DataGridColumnHeader">
                                 <Setter Property="HorizontalContentAlignment" Value="Center"/>
