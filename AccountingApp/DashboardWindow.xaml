@@ -63,15 +63,54 @@
                 </DockPanel>
             </TabItem>
             <TabItem Header="Vendors">
+                <TabItem.Resources>
+                    <SolidColorBrush x:Key="PrimaryBrush" Color="#FF3F51B5"/>
+                    <SolidColorBrush x:Key="AccentBrush" Color="#FF009688"/>
+                    <Style x:Key="ActionButtonStyle" TargetType="Button">
+                        <Setter Property="FontFamily" Value="Segoe UI"/>
+                        <Setter Property="FontSize" Value="14"/>
+                        <Setter Property="Padding" Value="8,4"/>
+                        <Setter Property="Margin" Value="2"/>
+                        <Setter Property="MinWidth" Value="80"/>
+                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+                        <Setter Property="Foreground" Value="White"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Height" Value="32"/>
+                        <Setter Property="Cursor" Value="Hand"/>
+                    </Style>
+                    <Style x:Key="RefreshButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+                        <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+                    </Style>
+                    <Style TargetType="TextBox">
+                        <Setter Property="Height" Value="32"/>
+                        <Setter Property="Margin" Value="0,0,10,0"/>
+                        <Setter Property="VerticalContentAlignment" Value="Center"/>
+                    </Style>
+                    <Style TargetType="DataGrid">
+                        <Setter Property="RowBackground" Value="White"/>
+                        <Setter Property="AlternatingRowBackground" Value="#F3F3F3"/>
+                        <Setter Property="GridLinesVisibility" Value="None"/>
+                        <Setter Property="BorderBrush" Value="#DDDDDD"/>
+                        <Setter Property="BorderThickness" Value="1"/>
+                        <Setter Property="HeadersVisibility" Value="Column"/>
+                        <Setter Property="RowHeight" Value="30"/>
+                    </Style>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+                        <Setter Property="Foreground" Value="White"/>
+                        <Setter Property="FontWeight" Value="Bold"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                    </Style>
+                </TabItem.Resources>
                 <!-- Vendor management: add new vendors and list existing ones -->
-                <DockPanel>
+                <DockPanel TextElement.FontFamily="Segoe UI" TextElement.FontSize="14">
                     <!-- Top panel: inputs for adding a new vendor and refresh -->
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="10">
-                        <Button Content="Refresh" Click="RefreshVendors_Click" Margin="0,0,10,0"/>
-                        <TextBox x:Name="VendorNameTextBox" Width="150" Margin="0,0,10,0"/>
-                        <TextBox x:Name="VendorAddressTextBox" Width="150" Margin="0,0,10,0"/>
-                        <TextBox x:Name="VendorPhoneTextBox" Width="120" Margin="0,0,10,0"/>
-                        <Button Content="Add Vendor" Click="AddVendor_Click"/>
+                        <Button Content="Refresh" Click="RefreshVendors_Click" Style="{StaticResource RefreshButtonStyle}"/>
+                        <TextBox x:Name="VendorNameTextBox" Width="150"/>
+                        <TextBox x:Name="VendorAddressTextBox" Width="150"/>
+                        <TextBox x:Name="VendorPhoneTextBox" Width="120"/>
+                        <Button Content="Add Vendor" Click="AddVendor_Click" Style="{StaticResource ActionButtonStyle}"/>
                     </StackPanel>
                     <!-- Vendor list -->
                     <DataGrid x:Name="VendorsDataGrid" AutoGenerateColumns="False" Margin="10" IsReadOnly="True">
@@ -249,9 +288,9 @@
                             <TextBlock Text="Vendor:" VerticalAlignment="Center" Margin="0,0,5,0"/>
                             <ComboBox x:Name="LedgerVendorFilterComboBox" Width="150" DisplayMemberPath="Name" SelectedValuePath="Id"/>
                             <TextBlock Text="From:" VerticalAlignment="Center" Margin="10,0,5,0"/>
-                            <DatePicker x:Name="FromDatePicker" Width="120"/>
+                            <DatePicker x:Name="FromDatePicker" Width="160" SelectedDateFormat="Short"/>
                             <TextBlock Text="To:" VerticalAlignment="Center" Margin="10,0,5,0"/>
-                            <DatePicker x:Name="ToDatePicker" Width="120"/>
+                            <DatePicker x:Name="ToDatePicker" Width="160" SelectedDateFormat="Short"/>
                             <Button Content="Load Ledger" Click="LoadLedger_Click" Margin="10,0,0,0"/>
                         </StackPanel>
                         <TextBlock x:Name="LedgerVendorTextBlock" FontWeight="Bold" Margin="0,0,0,10"/>
@@ -310,7 +349,7 @@
                 <DockPanel Margin="10" TextElement.FontFamily="Segoe UI" TextElement.FontSize="14">
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="10">
                         <TextBlock Text="Date:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                        <DatePicker x:Name="RoznamchaDatePicker" Width="120"/>
+                        <DatePicker x:Name="RoznamchaDatePicker" Width="160" SelectedDateFormat="Short"/>
                         <Button Content="Load" Margin="10,0,0,0" Click="LoadRoznamcha_Click"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="10,0,0,10">
