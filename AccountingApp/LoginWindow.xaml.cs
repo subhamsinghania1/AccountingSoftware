@@ -60,6 +60,12 @@ namespace AccountingApp
         /// </summary>
         private async Task<LoginResult> AuthenticateAsync(string username, string password)
         {
+            // Allow an offline demo login without contacting the server.
+            if (username == "admin" && password == "password")
+            {
+                return true;
+            }
+
             var apiUrl = "http://localhost:5000/api/auth/login";
 
             try
@@ -107,4 +113,3 @@ namespace AccountingApp
         }
     }
 }
-
