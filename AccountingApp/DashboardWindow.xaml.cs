@@ -23,6 +23,8 @@ namespace AccountingApp
         private ObservableCollection<Vendor> Vendors { get; set; } = new ObservableCollection<Vendor>();
         private ObservableCollection<TransactionViewModel> AllTransactions { get; set; } = new ObservableCollection<TransactionViewModel>();
         private ObservableCollection<User> Users { get; set; } = new ObservableCollection<User>();
+        private ObservableCollection<TransactionViewModel> _currentLedgerTransactions { get; set; } = new ObservableCollection<TransactionViewModel>();
+        private bool _suppressOpeningBalanceChange;
 
         // HTTP client for API calls
         private readonly HttpClient _httpClient;
@@ -489,21 +491,44 @@ namespace AccountingApp
             }
             LedgerVendorTextBlock.Text = $"Ledger for: {vendorName}";
 
-            IEnumerable<TransactionViewModel> priorTransactions;
-            if (vendorId.HasValue)
+            decimal openingBalance = 0;
+            if (from.HasValue)
             {
-                priorTransactions = AllTransactions.Where(t => t.VendorId == vendorId.Value && (!from.HasValue || t.Date.Date < from.Value.Date));
-            }
-            else
-            {
-                priorTransactions = AllTransactions.Where(t => !from.HasValue || t.Date.Date < from.Value.Date);
+                IEnumerable<TransactionViewModel> priorTransactions;
+                if (vendorId.HasValue)
+                {
+                    priorTransactions = AllTransactions.Where(t => t.VendorId == vendorId.Value && t.Date.Date < from.Value.Date);
+                }
+                else
+                {
+                    priorTransactions = AllTransactions.Where(t => t.Date.Date < from.Value.Date);
+                }
+
+                openingBalance = priorTransactions.Where(t => string.Equals(t.Type, "Credit", StringComparison.OrdinalIgnoreCase)).Sum(t => t.Amount)
+                                - priorTransactions.Where(t => string.Equals(t.Type, "Debit", StringComparison.OrdinalIgnoreCase)).Sum(t => t.Amount);
             }
 
-            decimal openingBalance = priorTransactions.Where(t => string.Equals(t.Type, "Credit", StringComparison.OrdinalIgnoreCase)).Sum(t => t.Amount) -
-                                     priorTransactions.Where(t => string.Equals(t.Type, "Debit", StringComparison.OrdinalIgnoreCase)).Sum(t => t.Amount);
+            _currentLedgerTransactions = new ObservableCollection<TransactionViewModel>(filtered);
+            _suppressOpeningBalanceChange = true;
+            OpeningBalanceTextBox.Text = openingBalance.ToString("0.00");
+            _suppressOpeningBalanceChange = false;
 
+            RecalculateLedger(openingBalance);
+        }
+
+        private void OpeningBalanceTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (_suppressOpeningBalanceChange) return;
+            if (decimal.TryParse(OpeningBalanceTextBox.Text, out var newOpening))
+            {
+                RecalculateLedger(newOpening);
+            }
+        }
+
+        private void RecalculateLedger(decimal openingBalance)
+        {
             decimal runningBalance = openingBalance;
-            foreach (var t in filtered)
+            foreach (var t in _currentLedgerTransactions)
             {
                 if (string.Equals(t.Type, "Credit", StringComparison.OrdinalIgnoreCase))
                 {
@@ -516,8 +541,8 @@ namespace AccountingApp
                 t.Balance = runningBalance;
             }
 
-            LedgerDataGrid.ItemsSource = new ObservableCollection<TransactionViewModel>(filtered);
-            CalculateLedgerTotals(filtered, openingBalance, runningBalance);
+            LedgerDataGrid.ItemsSource = new ObservableCollection<TransactionViewModel>(_currentLedgerTransactions);
+            CalculateLedgerTotals(_currentLedgerTransactions, openingBalance, runningBalance);
         }
 
         // Calculate totals for credit, debit and balance
@@ -527,7 +552,6 @@ namespace AccountingApp
             decimal totalDebit = transactions.Where(t => string.Equals(t.Type, "Debit", StringComparison.OrdinalIgnoreCase)).Sum(t => t.Amount);
             decimal balance = totalCredit - totalDebit;
 
-            OpeningBalanceTextBlock.Text = openingBalance.ToString("0.00");
             TotalCreditTextBlock.Text = totalCredit.ToString("0.00");
             TotalDebitTextBlock.Text = totalDebit.ToString("0.00");
             ClosingBalanceTextBlock.Text = closingBalance.ToString("0.00");
@@ -631,6 +655,8 @@ namespace AccountingApp
             public string AmountDisplay => string.Equals(Type, "Debit", StringComparison.OrdinalIgnoreCase)
                 ? "-" + Amount.ToString("0.00")
                 : Amount.ToString("0.00");
+            public string CreditDisplay => string.Equals(Type, "Credit", StringComparison.OrdinalIgnoreCase) ? Amount.ToString("0.00") : string.Empty;
+            public string DebitDisplay => string.Equals(Type, "Debit", StringComparison.OrdinalIgnoreCase) ? Amount.ToString("0.00") : string.Empty;
             public string BalanceDisplay => Balance.ToString("0.00");
         }
         private class User

@@ -155,7 +155,7 @@
                         <TextBlock x:Name="LedgerVendorTextBlock" FontWeight="Bold" Margin="0,0,0,10"/>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                             <TextBlock Text="Opening Balance:" VerticalAlignment="Center"/>
-                            <TextBlock x:Name="OpeningBalanceTextBlock" FontWeight="Bold" Margin="5,0,10,0"/>
+                            <TextBox x:Name="OpeningBalanceTextBox" Width="80" Margin="5,0,10,0" TextChanged="OpeningBalanceTextBox_TextChanged"/>
                             <TextBlock Text="Total Credit:" VerticalAlignment="Center"/>
                             <TextBlock x:Name="TotalCreditTextBlock" FontWeight="Bold" Margin="5,0,10,0"/>
                             <TextBlock Text="Total Debit:" VerticalAlignment="Center"/>
@@ -168,22 +168,10 @@
                     </StackPanel>
                     <DataGrid x:Name="LedgerDataGrid" AutoGenerateColumns="False" Margin="10" DockPanel.Dock="Top" IsReadOnly="True">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
                             <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat=d}" Width="120"/>
-                            <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="80"/>
-                            <DataGridTextColumn Header="Amount" Binding="{Binding AmountDisplay}" Width="100">
-                                <DataGridTextColumn.ElementStyle>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="Green"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding Type}" Value="Debit">
-                                                <Setter Property="Foreground" Value="Red"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </DataGridTextColumn.ElementStyle>
-                            </DataGridTextColumn>
                             <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="200"/>
+                            <DataGridTextColumn Header="Credit" Binding="{Binding CreditDisplay}" Width="100"/>
+                            <DataGridTextColumn Header="Debit" Binding="{Binding DebitDisplay}" Width="100"/>
                             <DataGridTextColumn Header="Balance" Binding="{Binding BalanceDisplay}" Width="100"/>
                         </DataGrid.Columns>
                     </DataGrid>
