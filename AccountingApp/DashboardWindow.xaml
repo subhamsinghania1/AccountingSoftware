@@ -86,9 +86,9 @@
             </TabItem>
             <TabItem Header="Transactions">
                 <TabItem.Resources>
-                    <Color x:Key="PrimaryColor">#3F51B5</Color>
-                    <Color x:Key="AccentColor">#009688</Color>
-                    <Color x:Key="DangerColor">#E74C3C</Color>
+                    <SolidColorBrush x:Key="PrimaryBrush" Color="#FF3F51B5"/>
+                    <SolidColorBrush x:Key="AccentBrush" Color="#FF009688"/>
+                    <SolidColorBrush x:Key="DangerBrush" Color="#FFE74C3C"/>
                     <Style x:Key="ActionButtonStyle" TargetType="Button">
                         <Setter Property="FontFamily" Value="Segoe UI"/>
                         <Setter Property="FontSize" Value="14"/>
@@ -96,14 +96,14 @@
                         <Setter Property="Margin" Value="2"/>
                         <Setter Property="MinWidth" Value="80"/>
                         <Setter Property="Height" Value="32"/>
-                        <Setter Property="Background" Value="{StaticResource PrimaryColor}"/>
+                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
                         <Setter Property="Foreground" Value="White"/>
                     </Style>
                     <Style x:Key="RefreshButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
-                        <Setter Property="Background" Value="{StaticResource AccentColor}"/>
+                        <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
                     </Style>
                     <Style x:Key="DeleteButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
-                        <Setter Property="Background" Value="{StaticResource DangerColor}"/>
+                        <Setter Property="Background" Value="{StaticResource DangerBrush}"/>
                     </Style>
                     <Style x:Key="InputControlStyle" TargetType="Control">
                         <Setter Property="Height" Value="32"/>

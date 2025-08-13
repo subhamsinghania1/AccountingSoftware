@@ -63,7 +63,7 @@ namespace AccountingApp
             // Allow an offline demo login without contacting the server.
             if (username == "admin" && password == "password")
             {
-                return true;
+                return new LoginResult { Success = true };
             }
 
             var apiUrl = "http://localhost:5000/api/auth/login";
