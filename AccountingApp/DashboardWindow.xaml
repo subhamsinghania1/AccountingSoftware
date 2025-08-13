@@ -186,8 +186,6 @@
                         </DataGrid.RowStyle>
                         <DataGrid.CellStyle>
                             <Style TargetType="DataGridCell">
-                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                                <Setter Property="TextBlock.TextAlignment" Value="Center"/>
                                 <Style.Triggers>
                                     <Trigger Property="IsSelected" Value="True">
                                         <Setter Property="Background" Value="#FFD0E7FF"/>
@@ -211,7 +209,6 @@
                             <DataGridTextColumn Header="Amount" Binding="{Binding Amount, UpdateSourceTrigger=PropertyChanged}" Width="100">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
-                                        <Setter Property="TextAlignment" Value="Center"/>
                                         <Setter Property="Foreground" Value="Green"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding Type}" Value="Debit">
