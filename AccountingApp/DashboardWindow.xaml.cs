@@ -18,8 +18,8 @@ namespace AccountingApp
     public partial class DashboardWindow : Window
     {
 
-        // Observable collections to hold vendors, transactions and users
-        private ObservableCollection<Vendor> Vendors { get; set; } = new ObservableCollection<Vendor>();
+        // Observable collections to hold parties, transactions and users
+        private ObservableCollection<Party> Parties { get; set; } = new ObservableCollection<Party>();
         private ObservableCollection<TransactionViewModel> AllTransactions { get; set; } = new ObservableCollection<TransactionViewModel>();
         private ObservableCollection<User> Users { get; set; } = new ObservableCollection<User>();
 
@@ -37,8 +37,8 @@ namespace AccountingApp
             _httpClient.DefaultRequestHeaders.Accept.Clear();
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            // Bind the vendors, transactions and users lists to the DataGrids
-            VendorsDataGrid.ItemsSource = Vendors;
+            // Bind the parties, transactions and users lists to the DataGrids
+            PartiesDataGrid.ItemsSource = Parties;
             UsersDataGrid.ItemsSource = Users;
 
             // Hide admin-only features for non-admin users
@@ -53,7 +53,7 @@ namespace AccountingApp
             {
                 // Set default date for adding transactions to today
                 AddTransactionDatePicker.SelectedDate = DateTime.Now;
-                await LoadVendorsAsync();
+                await LoadPartiesAsync();
                 await LoadTransactionsAsync();
                 if (_isAdmin)
                 {
@@ -68,77 +68,76 @@ namespace AccountingApp
             this.Close();
         }
 
-        // Refresh vendors list
-        private async void RefreshVendors_Click(object sender, RoutedEventArgs e)
+        // Refresh parties list
+        private async void RefreshParties_Click(object sender, RoutedEventArgs e)
         {
-            await LoadVendorsAsync();
+            await LoadPartiesAsync();
         }
 
-        // Add a new vendor
-        private async void AddVendor_Click(object sender, RoutedEventArgs e)
+        // Add a new party
+        private async void AddParty_Click(object sender, RoutedEventArgs e)
         {
-            var name = (VendorNameTextBox.Text ?? string.Empty).Trim();
-            var address = (VendorAddressTextBox.Text ?? string.Empty).Trim();
-            var phone = (VendorPhoneTextBox.Text ?? string.Empty).Trim();
+            var name = (PartyNameTextBox.Text ?? string.Empty).Trim();
+            var address = (PartyAddressTextBox.Text ?? string.Empty).Trim();
+            var phone = (PartyPhoneTextBox.Text ?? string.Empty).Trim();
 
             if (string.IsNullOrWhiteSpace(name))
             {
-                MessageBox.Show("Vendor name is required", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Party name is required", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            var vendorObj = new { Name = name, Address = address, Phone = phone };
-            string json = JsonConvert.SerializeObject(vendorObj);
+            var partyObj = new { Name = name, Address = address, Phone = phone };
+            string json = JsonConvert.SerializeObject(partyObj);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             try
             {
-                var response = await _httpClient.PostAsync("http://localhost:5000/api/vendors", content);
+                var response = await _httpClient.PostAsync("http://localhost:5000/api/parties", content);
                 if (response.IsSuccessStatusCode)
                 {
-                    // Clear inputs and reload vendors
-                    VendorNameTextBox.Text = string.Empty;
-                    VendorAddressTextBox.Text = string.Empty;
-                    VendorPhoneTextBox.Text = string.Empty;
-                    await LoadVendorsAsync();
+                    // Clear inputs and reload parties
+                    PartyNameTextBox.Text = string.Empty;
+                    PartyAddressTextBox.Text = string.Empty;
+                    PartyPhoneTextBox.Text = string.Empty;
+                    await LoadPartiesAsync();
                 }
                 else
                 {
                     string error = await response.Content.ReadAsStringAsync();
-                    MessageBox.Show($"Failed to add vendor: {error}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"Failed to add party: {error}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error adding vendor: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error adding party: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
-        // Load vendors from the API and update UI
-        private async Task LoadVendorsAsync()
+        // Load parties from the API and update UI
+        private async Task LoadPartiesAsync()
         {
             try
             {
-                var response = await _httpClient.GetAsync("http://localhost:5000/api/vendors");
+                var response = await _httpClient.GetAsync("http://localhost:5000/api/parties");
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
-                    var list = JsonConvert.DeserializeObject<List<Vendor>>(json) ?? new List<Vendor>();
-                    Vendors.Clear();
-                    foreach (var v in list)
+                    var list = JsonConvert.DeserializeObject<List<Party>>(json) ?? new List<Party>();
+                    Parties.Clear();
+                    foreach (var p in list)
                     {
-                        Vendors.Add(v);
+                        Parties.Add(p);
                     }
 
-                    // Update vendor combo boxes for filtering and adding transactions
-                    LedgerVendorFilterComboBox.ItemsSource = Vendors;
-                    AddTransactionVendorComboBox.ItemsSource = Vendors;
+                    // Update party combo boxes for filtering and adding transactions
+                    LedgerPartyFilterComboBox.ItemsSource = Parties;
+                    AddTransactionPartyComboBox.ItemsSource = Parties;
                     UpdateDashboardSummary();
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading vendors: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error loading parties: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -156,12 +155,12 @@ namespace AccountingApp
 
                     foreach (var t in list)
                     {
-                        var vendor = Vendors.FirstOrDefault(v => v.Id == t.VendorId);
+                        var party = Parties.FirstOrDefault(p => p.Id == t.PartyId);
                         AllTransactions.Add(new TransactionViewModel
                         {
                             Id = t.Id,
-                            VendorId = t.VendorId,
-                            VendorName = vendor?.Name ?? string.Empty,
+                            PartyId = t.PartyId,
+                            PartyName = party?.Name ?? string.Empty,
                             Amount = t.Amount,
                             Type = t.Type,
                             Date = t.Date,
@@ -183,12 +182,12 @@ namespace AccountingApp
         // Add a new transaction
         private async void AddTransaction_Click(object sender, RoutedEventArgs e)
         {
-            if (AddTransactionVendorComboBox.SelectedValue == null)
+            if (AddTransactionPartyComboBox.SelectedValue == null)
             {
-                MessageBox.Show("Please select a vendor", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Please select a party", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            var vendorId = (int)AddTransactionVendorComboBox.SelectedValue;
+            var partyId = (int)AddTransactionPartyComboBox.SelectedValue;
             var date = AddTransactionDatePicker.SelectedDate ?? DateTime.Now;
             var typeItem = AddTransactionTypeComboBox.SelectedItem as ComboBoxItem;
             if (typeItem == null)
@@ -203,7 +202,7 @@ namespace AccountingApp
                 return;
             }
             var description = (AddTransactionDescriptionTextBox.Text ?? string.Empty).Trim();
-            var transObj = new { VendorId = vendorId, Amount = amount, Type = type, Date = date, Description = description };
+            var transObj = new { PartyId = partyId, Amount = amount, Type = type, Date = date, Description = description };
             string json = JsonConvert.SerializeObject(transObj);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             try
@@ -212,7 +211,7 @@ namespace AccountingApp
                 if (response.IsSuccessStatusCode)
                 {
                     // Clear inputs and reload transactions
-                    AddTransactionVendorComboBox.SelectedIndex = -1;
+                    AddTransactionPartyComboBox.SelectedIndex = -1;
                     AddTransactionDatePicker.SelectedDate = DateTime.Now;
                     AddTransactionTypeComboBox.SelectedIndex = -1;
                     AddTransactionAmountTextBox.Text = string.Empty;
@@ -347,26 +346,26 @@ namespace AccountingApp
             }
         }
 
-        // Filter ledger by vendor and date range
+        // Filter ledger by party and date range
         private void LoadLedger_Click(object sender, RoutedEventArgs e)
         {
-            int? vendorId = null;
-            if (LedgerVendorFilterComboBox.SelectedValue != null)
+            int? partyId = null;
+            if (LedgerPartyFilterComboBox.SelectedValue != null)
             {
                 try
                 {
-                    vendorId = Convert.ToInt32(LedgerVendorFilterComboBox.SelectedValue);
+                    partyId = Convert.ToInt32(LedgerPartyFilterComboBox.SelectedValue);
                 }
                 catch
                 {
-                    vendorId = null;
+                    partyId = null;
                 }
             }
             DateTime? from = FromDatePicker.SelectedDate;
             DateTime? to = ToDatePicker.SelectedDate;
 
             var filtered = AllTransactions.Where(t =>
-                (!vendorId.HasValue || t.VendorId == vendorId.Value) &&
+                (!partyId.HasValue || t.PartyId == partyId.Value) &&
                 (!from.HasValue || t.Date.Date >= from.Value.Date) &&
                 (!to.HasValue || t.Date.Date <= to.Value.Date)
             ).ToList();
@@ -390,9 +389,9 @@ namespace AccountingApp
         // Update summary values shown on the Home tab
         private void UpdateDashboardSummary()
         {
-            if (VendorCountTextBlock != null)
+            if (PartyCountTextBlock != null)
             {
-                VendorCountTextBlock.Text = Vendors.Count.ToString();
+                PartyCountTextBlock.Text = Parties.Count.ToString();
             }
             if (TransactionCountTextBlock != null)
             {
@@ -417,8 +416,8 @@ namespace AccountingApp
             }
         }
 
-        // Vendor model
-        private class Vendor
+        // Party model
+        private class Party
         {
             public int Id { get; set; }
             public string Name { get; set; } = string.Empty;
@@ -426,23 +425,23 @@ namespace AccountingApp
             public string Phone { get; set; } = string.Empty;
         }
 
-        // Transaction model returned from API
+        // Transaction model returned from API (no GST or tax fields)
         private class Transaction
         {
             public int Id { get; set; }
-            public int VendorId { get; set; }
+            public int PartyId { get; set; }
             public decimal Amount { get; set; }
             public string Type { get; set; } = string.Empty;
             public DateTime Date { get; set; }
             public string Description { get; set; } = string.Empty;
         }
 
-        // View model for displaying transactions with vendor name
+        // View model for displaying transactions with party name
         private class TransactionViewModel
         {
             public int Id { get; set; }
-            public int VendorId { get; set; }
-            public string VendorName { get; set; } = string.Empty;
+            public int PartyId { get; set; }
+            public string PartyName { get; set; } = string.Empty;
             public decimal Amount { get; set; }
             public string Type { get; set; } = string.Empty;
             public DateTime Date { get; set; }

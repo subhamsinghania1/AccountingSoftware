@@ -18,8 +18,8 @@
                         <TextBlock Text="Welcome to the Accounting Dashboard" FontSize="24" HorizontalAlignment="Center"/>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
                             <StackPanel Margin="10" HorizontalAlignment="Center">
-                                <TextBlock Text="Total Vendors" HorizontalAlignment="Center"/>
-                                <TextBlock x:Name="VendorCountTextBlock" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Total Parties" HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="PartyCountTextBlock" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
                             </StackPanel>
                             <StackPanel Margin="10" HorizontalAlignment="Center">
                                 <TextBlock Text="Total Transactions" HorizontalAlignment="Center"/>
@@ -61,19 +61,19 @@
                     </DataGrid>
                 </DockPanel>
             </TabItem>
-            <TabItem Header="Vendors">
-                <!-- Vendor management: add new vendors and list existing ones -->
+            <TabItem Header="Parties">
+                <!-- Party management: add new parties and list existing ones -->
                 <DockPanel>
-                    <!-- Top panel: inputs for adding a new vendor and refresh -->
+                    <!-- Top panel: inputs for adding a new party and refresh -->
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="10">
-                        <Button Content="Refresh" Click="RefreshVendors_Click" Margin="0,0,10,0"/>
-                        <TextBox x:Name="VendorNameTextBox" Width="150" Margin="0,0,10,0"/>
-                        <TextBox x:Name="VendorAddressTextBox" Width="150" Margin="0,0,10,0"/>
-                        <TextBox x:Name="VendorPhoneTextBox" Width="120" Margin="0,0,10,0"/>
-                        <Button Content="Add Vendor" Click="AddVendor_Click"/>
+                        <Button Content="Refresh" Click="RefreshParties_Click" Margin="0,0,10,0"/>
+                        <TextBox x:Name="PartyNameTextBox" Width="150" Margin="0,0,10,0"/>
+                        <TextBox x:Name="PartyAddressTextBox" Width="150" Margin="0,0,10,0"/>
+                        <TextBox x:Name="PartyPhoneTextBox" Width="120" Margin="0,0,10,0"/>
+                        <Button Content="Add Party" Click="AddParty_Click"/>
                     </StackPanel>
-                    <!-- Vendor list -->
-                    <DataGrid x:Name="VendorsDataGrid" AutoGenerateColumns="False" Margin="10" IsReadOnly="True">
+                    <!-- Party list -->
+                    <DataGrid x:Name="PartiesDataGrid" AutoGenerateColumns="False" Margin="10" IsReadOnly="True">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
                             <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="150"/>
@@ -90,7 +90,7 @@
                     <DataGrid x:Name="TransactionsDataGrid" AutoGenerateColumns="False" Margin="10" DockPanel.Dock="Top" IsReadOnly="True">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
-                            <DataGridTextColumn Header="Vendor" Binding="{Binding VendorName}" Width="150"/>
+                            <DataGridTextColumn Header="Party" Binding="{Binding PartyName}" Width="150"/>
                             <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat=d}" Width="120"/>
                             <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="80"/>
                             <DataGridTextColumn Header="Amount" Binding="{Binding Amount}" Width="100"/>
@@ -105,7 +105,7 @@
                         </DataGrid.Columns>
                     </DataGrid>
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" Margin="10">
-                        <ComboBox x:Name="AddTransactionVendorComboBox" Width="150" DisplayMemberPath="Name" SelectedValuePath="Id" Margin="0,0,10,0"/>
+                        <ComboBox x:Name="AddTransactionPartyComboBox" Width="150" DisplayMemberPath="Name" SelectedValuePath="Id" Margin="0,0,10,0"/>
                         <DatePicker x:Name="AddTransactionDatePicker" Width="120" Margin="0,0,10,0"/>
                         <ComboBox x:Name="AddTransactionTypeComboBox" Width="100" Margin="0,0,10,0">
                             <ComboBoxItem Content="Credit"/>
@@ -118,12 +118,12 @@
                 </DockPanel>
             </TabItem>
             <TabItem Header="Ledger">
-                <!-- Separate ledger view with vendor and date range filtering -->
+                <!-- Separate ledger view with party and date range filtering -->
                 <DockPanel>
                     <StackPanel Orientation="Vertical" DockPanel.Dock="Top" Margin="10">
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                            <TextBlock Text="Vendor:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                            <ComboBox x:Name="LedgerVendorFilterComboBox" Width="150" DisplayMemberPath="Name" SelectedValuePath="Id"/>
+                            <TextBlock Text="Party:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <ComboBox x:Name="LedgerPartyFilterComboBox" Width="150" DisplayMemberPath="Name" SelectedValuePath="Id"/>
                             <TextBlock Text="From:" VerticalAlignment="Center" Margin="10,0,5,0"/>
                             <DatePicker x:Name="FromDatePicker" Width="120"/>
                             <TextBlock Text="To:" VerticalAlignment="Center" Margin="10,0,5,0"/>
@@ -142,7 +142,7 @@
                     <DataGrid x:Name="LedgerDataGrid" AutoGenerateColumns="False" Margin="10" DockPanel.Dock="Top" IsReadOnly="True">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
-                            <DataGridTextColumn Header="Vendor" Binding="{Binding VendorName}" Width="150"/>
+                            <DataGridTextColumn Header="Party" Binding="{Binding PartyName}" Width="150"/>
                             <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat=d}" Width="120"/>
                             <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="80"/>
                             <DataGridTextColumn Header="Amount" Binding="{Binding Amount}" Width="100"/>
