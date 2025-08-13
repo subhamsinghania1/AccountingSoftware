@@ -187,8 +187,35 @@
                 </DockPanel>
             </TabItem>
             <TabItem Header="Ledger">
+                <TabItem.Resources>
+                    <Style TargetType="Button">
+                        <Setter Property="Background" Value="#007ACC"/>
+                        <Setter Property="Foreground" Value="White"/>
+                        <Setter Property="Padding" Value="8,4"/>
+                        <Setter Property="Margin" Value="2"/>
+                        <Setter Property="MinWidth" Value="90"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Height" Value="32"/>
+                        <Setter Property="Cursor" Value="Hand"/>
+                    </Style>
+                    <Style TargetType="DataGrid">
+                        <Setter Property="RowBackground" Value="White"/>
+                        <Setter Property="AlternatingRowBackground" Value="#F3F3F3"/>
+                        <Setter Property="GridLinesVisibility" Value="None"/>
+                        <Setter Property="BorderBrush" Value="#DDDDDD"/>
+                        <Setter Property="BorderThickness" Value="1"/>
+                        <Setter Property="HeadersVisibility" Value="Column"/>
+                        <Setter Property="RowHeight" Value="30"/>
+                    </Style>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Background" Value="#007ACC"/>
+                        <Setter Property="Foreground" Value="White"/>
+                        <Setter Property="FontWeight" Value="Bold"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                    </Style>
+                </TabItem.Resources>
                 <!-- Separate ledger view with vendor and date range filtering -->
-                <DockPanel>
+                <DockPanel Margin="10" FontFamily="Segoe UI" FontSize="14">
                     <StackPanel Orientation="Vertical" DockPanel.Dock="Top" Margin="10">
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                             <TextBlock Text="Vendor:" VerticalAlignment="Center" Margin="0,0,5,0"/>
@@ -225,7 +252,34 @@
                 </DockPanel>
             </TabItem>
             <TabItem Header="Roznamcha">
-                <DockPanel>
+                <TabItem.Resources>
+                    <Style TargetType="Button">
+                        <Setter Property="Background" Value="#007ACC"/>
+                        <Setter Property="Foreground" Value="White"/>
+                        <Setter Property="Padding" Value="8,4"/>
+                        <Setter Property="Margin" Value="2"/>
+                        <Setter Property="MinWidth" Value="90"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Height" Value="32"/>
+                        <Setter Property="Cursor" Value="Hand"/>
+                    </Style>
+                    <Style TargetType="DataGrid">
+                        <Setter Property="RowBackground" Value="White"/>
+                        <Setter Property="AlternatingRowBackground" Value="#F3F3F3"/>
+                        <Setter Property="GridLinesVisibility" Value="None"/>
+                        <Setter Property="BorderBrush" Value="#DDDDDD"/>
+                        <Setter Property="BorderThickness" Value="1"/>
+                        <Setter Property="HeadersVisibility" Value="Column"/>
+                        <Setter Property="RowHeight" Value="30"/>
+                    </Style>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Background" Value="#007ACC"/>
+                        <Setter Property="Foreground" Value="White"/>
+                        <Setter Property="FontWeight" Value="Bold"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                    </Style>
+                </TabItem.Resources>
+                <DockPanel Margin="10" FontFamily="Segoe UI" FontSize="14">
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="10">
                         <TextBlock Text="Date:" VerticalAlignment="Center" Margin="0,0,5,0"/>
                         <DatePicker x:Name="RoznamchaDatePicker" Width="120"/>
