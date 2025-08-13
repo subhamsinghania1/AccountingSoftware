@@ -101,6 +101,7 @@
                         <Setter Property="Foreground" Value="White"/>
                         <Setter Property="FontWeight" Value="Bold"/>
                         <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Padding" Value="5"/>
                     </Style>
                 </TabItem.Resources>
                 <!-- Vendor management: add new vendors and list existing ones -->
@@ -163,7 +164,6 @@
                         <DataGrid.ColumnHeaderStyle>
                             <Style TargetType="DataGridColumnHeader">
                                 <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                                <Setter Property="Padding" Value="5,0"/>
                             </Style>
                         </DataGrid.ColumnHeaderStyle>
                         <DataGrid.RowStyle>
@@ -198,9 +198,17 @@
                         </DataGrid.CellStyle>
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Vendor" Binding="{Binding VendorName}" Width="150" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Vendor" Binding="{Binding VendorName}" Width="150" IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="TextAlignment" Value="Center"/>
+                                        <Setter Property="HorizontalAlignment" Value="Left"/>
+                                        <Setter Property="Margin" Value="15 0 0 0"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
                             <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat=d}" Width="150" IsReadOnly="True"/>
-                            <DataGridComboBoxColumn Header="Type" SelectedItemBinding="{Binding Type, UpdateSourceTrigger=PropertyChanged}" Width="80">
+                            <DataGridComboBoxColumn Header="Type" SelectedItemBinding="{Binding Type, UpdateSourceTrigger=PropertyChanged}"  Width="80">
                                 <DataGridComboBoxColumn.ItemsSource>
                                     <x:Array Type="{x:Type sys:String}">
                                         <sys:String>Credit</sys:String>
@@ -228,7 +236,7 @@
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                             <Button Content="Edit" Margin="0,0,5,0" Click="EditTransaction_Click"/>
                                             <Button Content="Update" Margin="0,0,5,0" Tag="{Binding Id}" Click="UpdateTransaction_Click"/>
-                                            <Button Content="Delete" Tag="{Binding Id}" Click="DeleteTransaction_Click" Style="{StaticResource DangerButtonStyle}"/>
+                                            <Button Content="Delete" Margin="0,0,5,0" Tag="{Binding Id}" Click="DeleteTransaction_Click" Style="{StaticResource DangerButtonStyle}"/>
                                         </StackPanel>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
@@ -244,7 +252,7 @@
                                 </StackPanel>
                                 <StackPanel Margin="0,0,10,0">
                                     <TextBlock Text="Date"/>
-                                    <DatePicker x:Name="AddTransactionDatePicker" Width="150" ToolTip="Transaction date" Style="{StaticResource InputControlStyle}" CalendarStyle="{StaticResource LargeCalendarStyle}"/>
+                                    <DatePicker x:Name="AddTransactionDatePicker" Width="200" ToolTip="Transaction date" Style="{StaticResource InputControlStyle}" CalendarStyle="{StaticResource LargeCalendarStyle}"/>
                                 </StackPanel>
                                 <StackPanel Margin="0,0,10,0">
                                     <TextBlock Text="Type"/>
@@ -299,6 +307,7 @@
                         <Setter Property="Foreground" Value="White"/>
                         <Setter Property="FontWeight" Value="Bold"/>
                         <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Padding" Value="5"/>
                     </Style>
                 </TabItem.Resources>
                 <!-- Separate ledger view with vendor and date range filtering -->
@@ -308,9 +317,9 @@
                             <TextBlock Text="Vendor:" VerticalAlignment="Center" Margin="0,0,5,0"/>
                             <ComboBox x:Name="LedgerVendorFilterComboBox" Width="140" DisplayMemberPath="Name" SelectedValuePath="Id" Style="{StaticResource InputControlStyle}"/>
                             <TextBlock Text="From:" VerticalAlignment="Center" Margin="10,0,5,0"/>
-                            <DatePicker x:Name="FromDatePicker" Width="140" SelectedDateFormat="Short" Style="{StaticResource InputControlStyle}"/>
+                            <DatePicker x:Name="FromDatePicker" Width="200" SelectedDateFormat="Short" Style="{StaticResource InputControlStyle}"/>
                             <TextBlock Text="To:" VerticalAlignment="Center" Margin="10,0,5,0"/>
-                            <DatePicker x:Name="ToDatePicker" Width="140" SelectedDateFormat="Short" Style="{StaticResource InputControlStyle}"/>
+                            <DatePicker x:Name="ToDatePicker" Width="200" SelectedDateFormat="Short" Style="{StaticResource InputControlStyle}"/>
                             <Button Content="Load Ledger" Click="LoadLedger_Click" Margin="10,0,0,0"/>
                         </StackPanel>
                         <TextBlock x:Name="LedgerVendorTextBlock" FontWeight="Bold" Margin="0,0,0,10"/>
@@ -330,10 +339,10 @@
                     <DataGrid x:Name="LedgerDataGrid" AutoGenerateColumns="False" Margin="10" DockPanel.Dock="Top" IsReadOnly="True">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat=d}" Width="140"/>
-                            <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="200"/>
-                            <DataGridTextColumn Header="Credit" Binding="{Binding CreditDisplay}" Width="100"/>
-                            <DataGridTextColumn Header="Debit" Binding="{Binding DebitDisplay}" Width="100"/>
-                            <DataGridTextColumn Header="Balance" Binding="{Binding BalanceDisplay}" Width="100"/>
+                            <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="300"/>
+                            <DataGridTextColumn Header="Credit" Binding="{Binding CreditDisplay}" Width="150"/>
+                            <DataGridTextColumn Header="Debit" Binding="{Binding DebitDisplay}" Width="150"/>
+                            <DataGridTextColumn Header="Balance" Binding="{Binding BalanceDisplay}" Width="150"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </DockPanel>
@@ -369,12 +378,13 @@
                         <Setter Property="Foreground" Value="White"/>
                         <Setter Property="FontWeight" Value="Bold"/>
                         <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Padding" Value="10"/>
                     </Style>
                 </TabItem.Resources>
                 <DockPanel Margin="10" TextElement.FontFamily="Segoe UI" TextElement.FontSize="14">
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="10">
                         <TextBlock Text="Date:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                        <DatePicker x:Name="RoznamchaDatePicker" Width="140" SelectedDateFormat="Short" Style="{StaticResource InputControlStyle}"/>
+                        <DatePicker x:Name="RoznamchaDatePicker" Width="180" SelectedDateFormat="Short" Style="{StaticResource InputControlStyle}"/>
                         <Button Content="Load" Margin="10,0,0,0" Click="LoadRoznamcha_Click"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="10,0,0,10">
