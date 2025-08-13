@@ -86,21 +86,29 @@
             </TabItem>
             <TabItem Header="Transactions">
                 <TabItem.Resources>
+                    <Color x:Key="PrimaryColor">#3F51B5</Color>
+                    <Color x:Key="AccentColor">#009688</Color>
+                    <Color x:Key="DangerColor">#E74C3C</Color>
                     <Style x:Key="ActionButtonStyle" TargetType="Button">
                         <Setter Property="FontFamily" Value="Segoe UI"/>
                         <Setter Property="FontSize" Value="14"/>
-                        <Setter Property="Padding" Value="6,3"/>
+                        <Setter Property="Padding" Value="8,4"/>
                         <Setter Property="Margin" Value="2"/>
-                        <Setter Property="MinWidth" Value="70"/>
-                        <Setter Property="Height" Value="30"/>
-                        <Setter Property="Background" Value="#1976D2"/>
+                        <Setter Property="MinWidth" Value="80"/>
+                        <Setter Property="Height" Value="32"/>
+                        <Setter Property="Background" Value="{StaticResource PrimaryColor}"/>
                         <Setter Property="Foreground" Value="White"/>
                     </Style>
                     <Style x:Key="RefreshButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
-                        <Setter Property="Background" Value="#009688"/>
+                        <Setter Property="Background" Value="{StaticResource AccentColor}"/>
                     </Style>
                     <Style x:Key="DeleteButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
-                        <Setter Property="Background" Value="#D32F2F"/>
+                        <Setter Property="Background" Value="{StaticResource DangerColor}"/>
+                    </Style>
+                    <Style x:Key="InputControlStyle" TargetType="Control">
+                        <Setter Property="Height" Value="32"/>
+                        <Setter Property="Margin" Value="0,5,0,0"/>
+                        <Setter Property="VerticalContentAlignment" Value="Center"/>
                     </Style>
                 </TabItem.Resources>
                 <!-- Transaction management: view, add and delete transactions -->
@@ -145,35 +153,37 @@
                             </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <StackPanel x:Name="AddTransactionPanel" Orientation="Vertical" DockPanel.Dock="Bottom" Margin="10" KeyDown="AddTransactionPanel_KeyDown">
-                        <StackPanel Orientation="Horizontal">
-                            <StackPanel Margin="0,0,10,0">
-                                <TextBlock Text="Vendor"/>
-                                <ComboBox x:Name="AddTransactionVendorComboBox" Width="150" DisplayMemberPath="Name" SelectedValuePath="Id" ToolTip="Select vendor"/>
+                    <Border DockPanel.Dock="Bottom" Margin="10" Background="White" CornerRadius="6" Padding="10" BorderBrush="#DDDDDD" BorderThickness="1">
+                        <StackPanel x:Name="AddTransactionPanel" Orientation="Vertical" KeyDown="AddTransactionPanel_KeyDown">
+                            <StackPanel Orientation="Horizontal">
+                                <StackPanel Margin="0,0,10,0">
+                                    <TextBlock Text="Vendor"/>
+                                    <ComboBox x:Name="AddTransactionVendorComboBox" Width="150" DisplayMemberPath="Name" SelectedValuePath="Id" ToolTip="Select vendor" Style="{StaticResource InputControlStyle}"/>
+                                </StackPanel>
+                                <StackPanel Margin="0,0,10,0">
+                                    <TextBlock Text="Date"/>
+                                    <DatePicker x:Name="AddTransactionDatePicker" Width="120" ToolTip="Transaction date" Style="{StaticResource InputControlStyle}"/>
+                                </StackPanel>
+                                <StackPanel Margin="0,0,10,0">
+                                    <TextBlock Text="Type"/>
+                                    <ComboBox x:Name="AddTransactionTypeComboBox" Width="100" ToolTip="Credit or debit" Style="{StaticResource InputControlStyle}">
+                                        <ComboBoxItem Content="Credit"/>
+                                        <ComboBoxItem Content="Debit"/>
+                                    </ComboBox>
+                                </StackPanel>
+                                <StackPanel Margin="0,0,10,0">
+                                    <TextBlock Text="Amount"/>
+                                    <TextBox x:Name="AddTransactionAmountTextBox" Width="80" ToolTip="Amount" Style="{StaticResource InputControlStyle}"/>
+                                </StackPanel>
+                                <StackPanel Margin="0,0,10,0">
+                                    <TextBlock Text="Description"/>
+                                    <TextBox x:Name="AddTransactionDescriptionTextBox" Width="150" ToolTip="Optional description" Style="{StaticResource InputControlStyle}"/>
+                                </StackPanel>
+                                <Button x:Name="AddTransactionButton" Content="Add Transaction" Margin="10,20,0,0" Click="AddTransaction_Click" Style="{StaticResource ActionButtonStyle}"/>
                             </StackPanel>
-                            <StackPanel Margin="0,0,10,0">
-                                <TextBlock Text="Date"/>
-                                <DatePicker x:Name="AddTransactionDatePicker" Width="120" ToolTip="Transaction date"/>
-                            </StackPanel>
-                            <StackPanel Margin="0,0,10,0">
-                                <TextBlock Text="Type"/>
-                                <ComboBox x:Name="AddTransactionTypeComboBox" Width="100" ToolTip="Credit or debit">
-                                    <ComboBoxItem Content="Credit"/>
-                                    <ComboBoxItem Content="Debit"/>
-                                </ComboBox>
-                            </StackPanel>
-                            <StackPanel Margin="0,0,10,0">
-                                <TextBlock Text="Amount"/>
-                                <TextBox x:Name="AddTransactionAmountTextBox" Width="80" ToolTip="Amount"/>
-                            </StackPanel>
-                            <StackPanel Margin="0,0,10,0">
-                                <TextBlock Text="Description"/>
-                                <TextBox x:Name="AddTransactionDescriptionTextBox" Width="150" ToolTip="Optional description"/>
-                            </StackPanel>
-                            <Button x:Name="AddTransactionButton" Content="Add Transaction" Margin="10,20,0,0" Click="AddTransaction_Click" Style="{StaticResource ActionButtonStyle}"/>
+                            <TextBlock x:Name="AddTransactionErrorTextBlock" Foreground="Red" Margin="0,5,0,0"/>
                         </StackPanel>
-                        <TextBlock x:Name="AddTransactionErrorTextBlock" Foreground="Red" Margin="0,5,0,0"/>
-                    </StackPanel>
+                    </Border>
                 </DockPanel>
             </TabItem>
             <TabItem Header="Ledger">
