@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -162,7 +162,7 @@ namespace AccountingApp
                     foreach (var t in list)
                     {
                         var vendor = Vendors.FirstOrDefault(v => v.Id == t.VendorId);
-                        AllTransactions.Add(new TransactionViewModel
+                        var tvm = new TransactionViewModel
                         {
                             Id = t.Id,
                             VendorId = t.VendorId,
@@ -170,8 +170,12 @@ namespace AccountingApp
                             Amount = t.Amount,
                             Type = t.Type,
                             Date = t.Date,
-                            Description = t.Description
-                        });
+                            Description = t.Description,
+                            OriginalAmount = t.Amount,
+                            OriginalType = t.Type,
+                            OriginalDescription = t.Description
+                        };
+                        AllTransactions.Add(tvm);
                     }
 
                     // Display all transactions by default
@@ -260,51 +264,64 @@ namespace AccountingApp
                 var row = TransactionsDataGrid.ItemContainerGenerator.ContainerFromItem(btn.DataContext) as DataGridRow;
                 if (row != null)
                 {
+                    if (row.Item is TransactionViewModel tvm)
+                    {
+                        tvm.OriginalAmount = tvm.Amount;
+                        tvm.OriginalType = tvm.Type;
+                        tvm.OriginalDescription = tvm.Description;
+                    }
                     TransactionsDataGrid.SelectedItem = row.Item;
-                    TransactionsDataGrid.CurrentCell = new DataGridCellInfo(row.Item, TransactionsDataGrid.Columns[5]);
+                    TransactionsDataGrid.CurrentCell = new DataGridCellInfo(row.Item, TransactionsDataGrid.Columns[3]);
                     TransactionsDataGrid.BeginEdit();
                 }
             }
         }
 
-        // Refresh a transaction from the server
+        // Update a transaction on the server
         private async void UpdateTransaction_Click(object sender, RoutedEventArgs e)
         {
-            if ((sender as Button)?.Tag is int transactionId)
+            TransactionsDataGrid.CommitEdit(DataGridEditingUnit.Cell, true);
+            TransactionsDataGrid.CommitEdit(DataGridEditingUnit.Row, true);
+
+            if (sender is Button btn && btn.DataContext is TransactionViewModel tvm)
             {
+                var transObj = new
+                {
+                    VendorId = tvm.VendorId,
+                    Amount = tvm.Amount,
+                    Type = tvm.Type,
+                    Date = tvm.Date,
+                    Description = tvm.Description
+                };
+                string json = JsonConvert.SerializeObject(transObj);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
                 try
                 {
-                    var response = await _httpClient.GetAsync($"http://localhost:5000/api/transactions/{transactionId}");
+                    var response = await _httpClient.PutAsync($"http://localhost:5000/api/transactions/{tvm.Id}", content);
                     if (response.IsSuccessStatusCode)
                     {
-                        var json = await response.Content.ReadAsStringAsync();
-                        var t = JsonConvert.DeserializeObject<Transaction>(json);
-                        if (t != null)
-                        {
-                            var tvm = AllTransactions.FirstOrDefault(x => x.Id == t.Id);
-                            if (tvm != null)
-                            {
-                                var vendor = Vendors.FirstOrDefault(v => v.Id == t.VendorId);
-                                tvm.VendorId = t.VendorId;
-                                tvm.VendorName = vendor?.Name ?? string.Empty;
-                                tvm.Amount = t.Amount;
-                                tvm.Type = t.Type;
-                                tvm.Date = t.Date;
-                                tvm.Description = t.Description;
-                                TransactionsDataGrid.Items.Refresh();
-                            }
-                        }
+                        tvm.OriginalAmount = tvm.Amount;
+                        tvm.OriginalType = tvm.Type;
+                        tvm.OriginalDescription = tvm.Description;
                     }
                     else
                     {
                         string error = await response.Content.ReadAsStringAsync();
-                        MessageBox.Show($"Failed to fetch transaction: {error}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show($"Failed to update transaction: {error}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        tvm.Amount = tvm.OriginalAmount;
+                        tvm.Type = tvm.OriginalType;
+                        tvm.Description = tvm.OriginalDescription;
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Error fetching transaction: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"Error updating transaction: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    tvm.Amount = tvm.OriginalAmount;
+                    tvm.Type = tvm.OriginalType;
+                    tvm.Description = tvm.OriginalDescription;
                 }
+
+                TransactionsDataGrid.Items.Refresh();
             }
         }
 
@@ -332,42 +349,6 @@ namespace AccountingApp
                     {
                         MessageBox.Show($"Error deleting transaction: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
-                }
-            }
-        }
-
-        // Persist inline edits to transactions
-        private async void TransactionsDataGrid_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
-        {
-            if (e.EditAction != DataGridEditAction.Commit)
-            {
-                return;
-            }
-
-            if (e.Row.Item is TransactionViewModel tvm)
-            {
-                var transObj = new
-                {
-                    VendorId = tvm.VendorId,
-                    Amount = tvm.Amount,
-                    Type = tvm.Type,
-                    Date = tvm.Date,
-                    Description = tvm.Description
-                };
-                string json = JsonConvert.SerializeObject(transObj);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-                try
-                {
-                    var response = await _httpClient.PutAsync($"http://localhost:5000/api/transactions/{tvm.Id}", content);
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        string error = await response.Content.ReadAsStringAsync();
-                        MessageBox.Show($"Failed to update transaction: {error}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error updating transaction: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -627,6 +608,9 @@ namespace AccountingApp
             public string Type { get; set; } = string.Empty;
             public DateTime Date { get; set; }
             public string Description { get; set; } = string.Empty;
+            public decimal OriginalAmount { get; set; }
+            public string OriginalType { get; set; } = string.Empty;
+            public string OriginalDescription { get; set; } = string.Empty;
             public decimal Balance { get; set; }
             public string AmountDisplay => string.Equals(Type, "Debit", StringComparison.OrdinalIgnoreCase)
                 ? "-" + Amount.ToString("0.00")
